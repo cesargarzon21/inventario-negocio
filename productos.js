@@ -23,7 +23,15 @@ const listaProductos = document.getElementById("listaProductos");
 const mensajeProductos = document.getElementById("mensajeProductos");
 
 
-// ELEMENTOS DE LA VENTANA
+// ELEMENTOS DEL ESCÁNER DE BÚSQUEDA
+const btnEscanearBusqueda = document.getElementById("btnEscanearBusqueda");
+const panelEscanerBusqueda = document.getElementById("panelEscanerBusqueda");
+const lectorCamaraBusqueda = document.getElementById("lectorCamaraBusqueda");
+const mensajeEscanerBusqueda = document.getElementById("mensajeEscanerBusqueda");
+const btnCerrarEscanerBusqueda = document.getElementById("btnCerrarEscanerBusqueda");
+
+
+// ELEMENTOS DE LA VENTANA DE EDICIÓN
 const modalProducto = document.getElementById("modalProducto");
 const tituloModal = document.getElementById("tituloModal");
 const btnCerrarModal = document.getElementById("btnCerrarModal");
@@ -46,6 +54,11 @@ let productoSeleccionado = null;
 let esAdministrador = false;
 let modoDuplicar = false;
 
+// VARIABLES DEL ESCÁNER
+let lectorBusqueda = null;
+let escanerBusquedaActivo = false;
+let procesandoCodigoBusqueda = false;
+
 
 // FORMATO DE DINERO
 const formatoDinero = new Intl.NumberFormat("es-CO", {
@@ -56,7 +69,8 @@ const formatoDinero = new Intl.NumberFormat("es-CO", {
 
 
 // VOLVER
-btnVolver.addEventListener("click", () => {
+btnVolver.addEventListener("click", async () => {
+    await detenerEscanerBusqueda();
     window.location.href = "index.html";
 });
 
@@ -81,7 +95,187 @@ async function comprobarAdministrador() {
 }
 
 
-// CERRAR VENTANA
+// =====================================
+// ESCÁNER DEL BUSCADOR
+// =====================================
+
+async function detenerEscanerBusqueda() {
+
+    if (lectorBusqueda) {
+
+        try {
+
+            if (escanerBusquedaActivo) {
+                await lectorBusqueda.stop();
+            }
+
+        } catch (error) {
+
+            console.log("La cámara ya estaba detenida.");
+
+        }
+
+        try {
+
+            await lectorBusqueda.clear();
+
+        } catch (error) {
+
+            console.log("No fue necesario limpiar el lector.");
+
+        }
+
+        lectorBusqueda = null;
+
+    }
+
+    escanerBusquedaActivo = false;
+    procesandoCodigoBusqueda = false;
+
+    panelEscanerBusqueda.hidden = true;
+
+}
+
+
+async function iniciarEscanerBusqueda() {
+
+    if (lectorBusqueda) {
+        return;
+    }
+
+    if (
+        typeof Html5Qrcode === "undefined" ||
+        typeof Html5QrcodeSupportedFormats === "undefined"
+    ) {
+
+        mensajeEscanerBusqueda.textContent =
+            "No se pudo cargar el escáner. Recarga la página e inténtalo nuevamente.";
+
+        panelEscanerBusqueda.hidden = false;
+
+        return;
+
+    }
+
+    panelEscanerBusqueda.hidden = false;
+
+    mensajeEscanerBusqueda.textContent =
+        "Solicitando acceso a la cámara...";
+
+    procesandoCodigoBusqueda = false;
+
+    const formatos = [
+        Html5QrcodeSupportedFormats.EAN_13,
+        Html5QrcodeSupportedFormats.EAN_8,
+        Html5QrcodeSupportedFormats.UPC_A,
+        Html5QrcodeSupportedFormats.UPC_E,
+        Html5QrcodeSupportedFormats.CODE_128,
+        Html5QrcodeSupportedFormats.CODE_39,
+        Html5QrcodeSupportedFormats.ITF,
+        Html5QrcodeSupportedFormats.CODABAR
+    ];
+
+    lectorBusqueda = new Html5Qrcode(
+        "lectorCamaraBusqueda",
+        {
+            formatsToSupport: formatos,
+            verbose: false
+        }
+    );
+
+    try {
+
+        await lectorBusqueda.start(
+
+            { facingMode: "environment" },
+
+            {
+                fps: 10,
+                qrbox: {
+                    width: 250,
+                    height: 120
+                }
+            },
+
+            async (codigoLeido) => {
+
+                if (procesandoCodigoBusqueda) {
+                    return;
+                }
+
+                procesandoCodigoBusqueda = true;
+
+                buscarProducto.value = codigoLeido;
+
+                mostrarProductos();
+
+                mensajeEscanerBusqueda.textContent =
+                    "Código leído correctamente.";
+
+                await detenerEscanerBusqueda();
+
+                buscarProducto.focus();
+
+            },
+
+            () => {
+                // No mostrar mensajes por cada lectura fallida.
+            }
+
+        );
+
+        escanerBusquedaActivo = true;
+
+        mensajeEscanerBusqueda.textContent =
+            "Apunta la cámara al código de barras del producto.";
+
+    } catch (error) {
+
+        console.error("Error iniciando el escáner:", error);
+
+        mensajeEscanerBusqueda.textContent =
+            "No se pudo abrir la cámara. Comprueba los permisos del navegador.";
+
+        try {
+
+            if (lectorBusqueda) {
+                await lectorBusqueda.clear();
+            }
+
+        } catch (errorLimpieza) {
+
+            console.log("No se pudo limpiar el lector.");
+
+        }
+
+        lectorBusqueda = null;
+        escanerBusquedaActivo = false;
+
+    }
+
+}
+
+
+// ABRIR ESCÁNER DE BÚSQUEDA
+btnEscanearBusqueda.addEventListener("click", () => {
+
+    iniciarEscanerBusqueda();
+
+});
+
+
+// CERRAR ESCÁNER DE BÚSQUEDA
+btnCerrarEscanerBusqueda.addEventListener("click", () => {
+
+    detenerEscanerBusqueda();
+
+});
+
+
+// =====================================
+// CERRAR VENTANA DE PRODUCTO
+// =====================================
+
 function cerrarModal() {
 
     modalProducto.hidden = true;
@@ -108,7 +302,10 @@ modalProducto.addEventListener("click", (evento) => {
 });
 
 
+// =====================================
 // ABRIR VENTANA DE PRODUCTO
+// =====================================
+
 function abrirModal(producto) {
 
     if (!esAdministrador) {
@@ -136,7 +333,10 @@ function abrirModal(producto) {
 }
 
 
+// =====================================
 // MOSTRAR PRODUCTOS
+// =====================================
+
 function mostrarProductos() {
 
     listaProductos.replaceChildren();
@@ -238,7 +438,10 @@ function mostrarProductos() {
 buscarProducto.addEventListener("input", mostrarProductos);
 
 
+// =====================================
 // ESCUCHAR INVENTARIO
+// =====================================
+
 function escucharInventario() {
 
     if (detenerInventario) {
@@ -296,7 +499,10 @@ function escucharInventario() {
 }
 
 
+// =====================================
 // VALIDAR CÓDIGO DE BARRAS
+// =====================================
+
 function codigoValido(codigo) {
 
     return codigo !== "" &&
@@ -305,7 +511,10 @@ function codigoValido(codigo) {
 }
 
 
+// =====================================
 // GUARDAR CAMBIOS O CREAR DUPLICADO
+// =====================================
+
 formEditarProducto.addEventListener("submit", async (evento) => {
 
     evento.preventDefault();
@@ -391,7 +600,6 @@ formEditarProducto.addEventListener("submit", async (evento) => {
 
         if (modoDuplicar) {
 
-            // CREAR PRODUCTO NUEVO
             await set(
                 ref(database, "inventario/" + codigo),
                 nuevoProducto
@@ -401,7 +609,6 @@ formEditarProducto.addEventListener("submit", async (evento) => {
 
         } else {
 
-            // ACTUALIZAR PRODUCTO EXISTENTE
             const codigoAnterior = productoSeleccionado.idFirebase;
 
             const cambios = {};
@@ -437,7 +644,10 @@ formEditarProducto.addEventListener("submit", async (evento) => {
 });
 
 
+// =====================================
 // DUPLICAR PRODUCTO
+// =====================================
+
 btnDuplicarProducto.addEventListener("click", () => {
 
     if (!productoSeleccionado || !esAdministrador) {
@@ -448,10 +658,7 @@ btnDuplicarProducto.addEventListener("click", () => {
 
     tituloModal.textContent = "Duplicar producto";
 
-    // EL NUEVO PRODUCTO NECESITA OTRO CÓDIGO
     editarCodigo.value = "";
-
-    // LA COPIA COMIENZA CON STOCK CERO
     editarCantidad.value = 0;
 
     mensajeModal.textContent =
@@ -460,7 +667,10 @@ btnDuplicarProducto.addEventListener("click", () => {
 });
 
 
+// =====================================
 // ELIMINAR PRODUCTO
+// =====================================
+
 btnEliminarProducto.addEventListener("click", async () => {
 
     if (!productoSeleccionado || !esAdministrador) {
@@ -497,13 +707,18 @@ btnEliminarProducto.addEventListener("click", async () => {
 });
 
 
+// =====================================
 // COMPROBAR SESIÓN
+// =====================================
+
 onAuthStateChanged(auth, async (usuario) => {
 
     if (detenerInventario) {
         detenerInventario();
         detenerInventario = null;
     }
+
+    await detenerEscanerBusqueda();
 
     if (!usuario) {
 

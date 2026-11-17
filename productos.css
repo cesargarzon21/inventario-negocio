@@ -1,132 +1,242 @@
+/* CONFIGURACIÓN GENERAL */
 
 * {
     box-sizing: border-box;
+}
+
+[hidden] {
+    display: none !important;
 }
 
 body {
     margin: 0;
     font-family: Arial, sans-serif;
     background: #f8faf9;
-    color: #263c32;
+    color: #292d32;
 }
+
+/* ENCABEZADO */
 
 .encabezado {
+    width: 100%;
+    min-height: 100px;
+    padding: 22px 28px;
+    background: #ffffff;
     display: flex;
     align-items: center;
-    gap: 15px;
-    padding: 18px 20px;
-    background: #ffffff;
+    justify-content: flex-start;
+    gap: 18px;
     border-bottom: 1px solid #e8efeb;
-}
-
-.btn-volver {
-    width: 42px;
-    height: 42px;
-    border: none;
-    border-radius: 10px;
-    background: #eaf5ee;
-    color: #247747;
-    font-size: 22px;
-    cursor: pointer;
 }
 
 .encabezado h1 {
     margin: 0;
-    font-size: 21px;
+    font-size: 32px;
+    font-weight: 700;
+    color: #25292d;
+}
+
+#btnVolver {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 12px;
+    background: #e9f5ef;
+    color: #075b46;
+    font-size: 27px;
+    cursor: pointer;
+}
+
+#btnVolver:active {
+    background: #d7eee3;
+}
+
+/* CONTENEDOR PRINCIPAL */
+
+.contenedor {
+    width: 100%;
+    max-width: 650px;
+    margin: 0 auto;
+    padding: 18px 25px 45px;
+}
+
+/* TARJETAS PRINCIPALES */
+
+.tarjeta {
+    width: 100%;
+    margin-bottom: 30px;
+    padding: 22px;
+    background: #ffffff;
+    border: 1px solid #e5ece8;
+    border-radius: 18px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.tarjeta h2 {
+    margin: 0 0 18px;
+    color: #25292d;
+    font-size: 22px;
     font-weight: 700;
 }
 
-.contenedor-productos {
-    width: 100%;
-    max-width: 750px;
-    margin: 0 auto;
-    padding: 20px;
+.titulo-seccion h2 {
+    margin: 0 0 8px;
 }
 
+.titulo-seccion p {
+    margin: 0;
+    color: #718078;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* RESUMEN DEL INVENTARIO */
+
 .resumen-productos {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 20px;
     padding: 18px;
-    margin-bottom: 18px;
-    background: #ffffff;
-    border: 1px solid #e4eee8;
+    background: #edf7f2;
+    border: 1px solid #cfe4d8;
     border-radius: 14px;
 }
 
-.resumen-productos p {
-    margin: 0 0 8px;
-    color: #64756b;
+.resumen-productos div {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.resumen-productos span {
+    color: #52645b;
     font-size: 14px;
 }
 
 .resumen-productos strong {
-    font-size: 28px;
-    color: #247747;
+    color: #075b46;
+    font-size: 30px;
 }
+
+.icono-resumen {
+    font-size: 35px !important;
+}
+
+/* BUSCADOR */
+
+.busqueda-productos {
+    width: 100%;
+    min-height: 65px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    margin-bottom: 18px;
+    background: #ffffff;
+    border: 2px solid #55ad98;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.busqueda-productos span {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #279c83;
+    font-size: 29px;
+    line-height: 1;
+}
+
+.busqueda-productos input {
+    flex: 1;
+    width: 100%;
+    min-width: 0;
+    padding: 12px 0;
+    margin: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: #292d32;
+    font-size: 16px;
+}
+
+.busqueda-productos input::placeholder {
+    color: #a0a6a4;
+}
+
+.busqueda-productos:focus-within {
+    border-color: #279c83;
+    box-shadow: 0 0 0 3px rgba(39, 156, 131, 0.10);
+}
+
+/* MENSAJES */
 
 #mensajeProductos {
     margin: 12px 0;
-    color: #64756b;
-    font-size: 14px;
+    color: #718078;
+    font-size: 13px;
 }
 
-#buscarProducto {
-    width: 100%;
-    padding: 14px;
-    margin-bottom: 18px;
-    border: 1px solid #dce7df;
-    border-radius: 10px;
-    background: #ffffff;
-    font-size: 16px;
-    outline: none;
-}
-
-#buscarProducto:focus {
-    border-color: #32965b;
-}
+/* LISTA DE PRODUCTOS */
 
 #listaProductos {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 14px;
 }
 
 .producto-item {
-    padding: 16px;
+    width: 100%;
+    padding: 17px;
     background: #ffffff;
-    border: 1px solid #e4eee8;
-    border-radius: 13px;
+    border: 1px solid #cfe4d8;
+    border-radius: 15px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
     cursor: pointer;
 }
 
 .producto-item:active {
-    background: #f1f8f3;
+    background: #f1f8f4;
+    transform: scale(0.99);
 }
 
 .encabezado-producto {
     display: flex;
-    justify-content: space-between;
     align-items: flex-start;
-    gap: 10px;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 9px;
 }
 
 .encabezado-producto h3 {
     margin: 0;
+    color: #075b46;
     font-size: 16px;
-    color: #263c32;
+    font-weight: 700;
+    overflow-wrap: anywhere;
 }
 
 .cantidad-producto {
-    padding: 5px 9px;
+    flex-shrink: 0;
+    padding: 6px 9px;
+    background: #edf7f2;
+    color: #075b46;
     border-radius: 20px;
-    background: #eaf5ee;
-    color: #247747;
     font-size: 12px;
-    white-space: nowrap;
+    font-weight: 700;
 }
 
 .codigo-producto {
-    margin: 10px 0;
-    color: #718078;
-    font-size: 13px;
+    margin: 0 0 15px;
+    color: #87948d;
+    font-size: 12px;
+    overflow-wrap: anywhere;
 }
 
 .detalles-producto {
@@ -136,15 +246,17 @@ body {
 }
 
 .detalles-producto strong {
-    color: #247747;
+    color: #075b46;
     font-size: 17px;
 }
 
 .inventario-vacio {
-    padding: 30px 15px;
+    padding: 25px 15px;
+    color: #87948d;
     text-align: center;
-    color: #718078;
+    font-size: 14px;
     background: #ffffff;
+    border: 1px dashed #dce5df;
     border-radius: 12px;
 }
 
@@ -162,7 +274,7 @@ body {
 }
 
 .modal-producto[hidden] {
-    display: none;
+    display: none !important;
 }
 
 .contenido-modal {
@@ -228,6 +340,8 @@ body {
     font-size: 18px;
 }
 
+/* FORMULARIO DEL MODAL */
+
 .campos-modal {
     display: flex;
     flex-direction: column;
@@ -262,7 +376,7 @@ body {
     border-color: #32965b;
 }
 
-/* CAMPO DE CÓDIGO Y ESCÁNER */
+/* CÓDIGO DE BARRAS */
 
 .campo-codigo {
     display: flex;
@@ -285,13 +399,13 @@ body {
     padding: 10px;
     border: none;
     border-radius: 10px;
-    background: #247747;
+    background: #075b46;
     color: #ffffff;
     cursor: pointer;
 }
 
 .btn-escanear:active {
-    background: #185b34;
+    background: #064735;
 }
 
 .btn-escanear:disabled {
@@ -299,10 +413,10 @@ body {
     cursor: not-allowed;
 }
 
-/* PANEL DE CÁMARA */
+/* PANEL DEL ESCÁNER */
 
 #panelEscaner[hidden] {
-    display: none;
+    display: none !important;
 }
 
 #panelEscaner {
@@ -362,7 +476,7 @@ body {
     padding: 14px;
     border: none;
     border-radius: 10px;
-    background: #247747;
+    background: #075b46;
     color: #ffffff;
     font-size: 16px;
     font-weight: 600;
@@ -370,7 +484,7 @@ body {
 }
 
 .btn-guardar-cambios:active {
-    background: #185b34;
+    background: #064735;
 }
 
 .btn-guardar-cambios:disabled {
@@ -378,9 +492,46 @@ body {
     cursor: not-allowed;
 }
 
+/* INTERACCIONES */
+
+button {
+    cursor: pointer;
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+/* ADAPTACIÓN A CELULARES */
+
 @media (max-width: 480px) {
-    .contenedor-productos {
-        padding: 14px;
+
+    .encabezado {
+        min-height: 90px;
+        padding: 20px 22px;
+    }
+
+    .encabezado h1 {
+        font-size: 29px;
+    }
+
+    .contenedor {
+        padding: 18px 20px 35px;
+    }
+
+    .tarjeta {
+        padding: 17px;
+        margin-bottom: 22px;
+    }
+
+    .tarjeta h2 {
+        font-size: 20px;
+    }
+
+    .busqueda-productos {
+        min-height: 60px;
+        gap: 10px;
+        padding: 9px 13px;
     }
 
     .contenido-modal {
@@ -390,4 +541,17 @@ body {
     .encabezado-modal h2 {
         font-size: 18px;
     }
+
+}
+
+@media (max-width: 350px) {
+
+    .producto-item {
+        padding: 13px;
+    }
+
+    .encabezado-producto h3 {
+        font-size: 14px;
+    }
+
 }

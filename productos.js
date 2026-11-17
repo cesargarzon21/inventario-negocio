@@ -15,7 +15,10 @@ import {
 } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-database.js";
 
 
+// =====================================
 // ELEMENTOS PRINCIPALES
+// =====================================
+
 const btnVolver = document.getElementById("btnVolver");
 const totalProductos = document.getElementById("totalProductos");
 const buscarProducto = document.getElementById("buscarProducto");
@@ -23,7 +26,10 @@ const listaProductos = document.getElementById("listaProductos");
 const mensajeProductos = document.getElementById("mensajeProductos");
 
 
-// ELEMENTOS DEL ESCÁNER DE BÚSQUEDA
+// =====================================
+// ESCÁNER DE BÚSQUEDA
+// =====================================
+
 const btnEscanearBusqueda = document.getElementById("btnEscanearBusqueda");
 const panelEscanerBusqueda = document.getElementById("panelEscanerBusqueda");
 const lectorCamaraBusqueda = document.getElementById("lectorCamaraBusqueda");
@@ -31,7 +37,10 @@ const mensajeEscanerBusqueda = document.getElementById("mensajeEscanerBusqueda")
 const btnCerrarEscanerBusqueda = document.getElementById("btnCerrarEscanerBusqueda");
 
 
-// ELEMENTOS DE LA VENTANA DE EDICIÓN
+// =====================================
+// VENTANA DE EDICIÓN
+// =====================================
+
 const modalProducto = document.getElementById("modalProducto");
 const tituloModal = document.getElementById("tituloModal");
 const btnCerrarModal = document.getElementById("btnCerrarModal");
@@ -47,17 +56,34 @@ const editarCantidad = document.getElementById("editarCantidad");
 const mensajeModal = document.getElementById("mensajeModal");
 
 
+// =====================================
+// ESCÁNER DE EDICIÓN
+// =====================================
+
+const btnEscanearCodigo = document.getElementById("btnEscanearCodigo");
+const panelEscaner = document.getElementById("panelEscaner");
+const lectorCamara = document.getElementById("lectorCamara");
+const mensajeEscaner = document.getElementById("mensajeEscaner");
+const btnCerrarEscaner = document.getElementById("btnCerrarEscaner");
+
+
+// =====================================
 // VARIABLES
+// =====================================
+
 let productosActuales = [];
 let detenerInventario = null;
 let productoSeleccionado = null;
 let esAdministrador = false;
 let modoDuplicar = false;
 
-// VARIABLES DEL ESCÁNER
 let lectorBusqueda = null;
 let escanerBusquedaActivo = false;
 let procesandoCodigoBusqueda = false;
+
+let lectorEdicion = null;
+let escanerEdicionActivo = false;
+let procesandoCodigoEdicion = false;
 
 
 // FORMATO DE DINERO
@@ -68,14 +94,24 @@ const formatoDinero = new Intl.NumberFormat("es-CO", {
 });
 
 
+// =====================================
 // VOLVER
+// =====================================
+
 btnVolver.addEventListener("click", async () => {
+
     await detenerEscanerBusqueda();
+    await detenerEscanerEdicion();
+
     window.location.href = "index.html";
+
 });
 
 
-// COMPROBAR SI ES ADMINISTRADOR
+// =====================================
+// COMPROBAR ADMINISTRADOR
+// =====================================
+
 async function comprobarAdministrador() {
 
     try {
@@ -96,7 +132,27 @@ async function comprobarAdministrador() {
 
 
 // =====================================
-// ESCÁNER DEL BUSCADOR
+// FORMATOS DEL ESCÁNER
+// =====================================
+
+function obtenerFormatosEscaner() {
+
+    return [
+        Html5QrcodeSupportedFormats.EAN_13,
+        Html5QrcodeSupportedFormats.EAN_8,
+        Html5QrcodeSupportedFormats.UPC_A,
+        Html5QrcodeSupportedFormats.UPC_E,
+        Html5QrcodeSupportedFormats.CODE_128,
+        Html5QrcodeSupportedFormats.CODE_39,
+        Html5QrcodeSupportedFormats.ITF,
+        Html5QrcodeSupportedFormats.CODABAR
+    ];
+
+}
+
+
+// =====================================
+// ESCÁNER DE BÚSQUEDA
 // =====================================
 
 async function detenerEscanerBusqueda() {
@@ -111,7 +167,7 @@ async function detenerEscanerBusqueda() {
 
         } catch (error) {
 
-            console.log("La cámara ya estaba detenida.");
+            console.log("La cámara de búsqueda ya estaba detenida.");
 
         }
 
@@ -121,7 +177,7 @@ async function detenerEscanerBusqueda() {
 
         } catch (error) {
 
-            console.log("No fue necesario limpiar el lector.");
+            console.log("No fue necesario limpiar el lector de búsqueda.");
 
         }
 
@@ -139,7 +195,7 @@ async function detenerEscanerBusqueda() {
 
 async function iniciarEscanerBusqueda() {
 
-    if (lectorBusqueda) {
+    if (lectorBusqueda || lectorEdicion) {
         return;
     }
 
@@ -149,7 +205,7 @@ async function iniciarEscanerBusqueda() {
     ) {
 
         mensajeEscanerBusqueda.textContent =
-            "No se pudo cargar el escáner. Recarga la página e inténtalo nuevamente.";
+            "No se pudo cargar el escáner. Recarga la página.";
 
         panelEscanerBusqueda.hidden = false;
 
@@ -164,21 +220,10 @@ async function iniciarEscanerBusqueda() {
 
     procesandoCodigoBusqueda = false;
 
-    const formatos = [
-        Html5QrcodeSupportedFormats.EAN_13,
-        Html5QrcodeSupportedFormats.EAN_8,
-        Html5QrcodeSupportedFormats.UPC_A,
-        Html5QrcodeSupportedFormats.UPC_E,
-        Html5QrcodeSupportedFormats.CODE_128,
-        Html5QrcodeSupportedFormats.CODE_39,
-        Html5QrcodeSupportedFormats.ITF,
-        Html5QrcodeSupportedFormats.CODABAR
-    ];
-
     lectorBusqueda = new Html5Qrcode(
         "lectorCamaraBusqueda",
         {
-            formatsToSupport: formatos,
+            formatsToSupport: obtenerFormatosEscaner(),
             verbose: false
         }
     );
@@ -209,18 +254,13 @@ async function iniciarEscanerBusqueda() {
 
                 mostrarProductos();
 
-                mensajeEscanerBusqueda.textContent =
-                    "Código leído correctamente.";
-
                 await detenerEscanerBusqueda();
 
                 buscarProducto.focus();
 
             },
 
-            () => {
-                // No mostrar mensajes por cada lectura fallida.
-            }
+            () => {}
 
         );
 
@@ -231,10 +271,10 @@ async function iniciarEscanerBusqueda() {
 
     } catch (error) {
 
-        console.error("Error iniciando el escáner:", error);
+        console.error("Error iniciando escáner de búsqueda:", error);
 
         mensajeEscanerBusqueda.textContent =
-            "No se pudo abrir la cámara. Comprueba los permisos del navegador.";
+            "No se pudo abrir la cámara. Comprueba los permisos.";
 
         try {
 
@@ -242,11 +282,7 @@ async function iniciarEscanerBusqueda() {
                 await lectorBusqueda.clear();
             }
 
-        } catch (errorLimpieza) {
-
-            console.log("No se pudo limpiar el lector.");
-
-        }
+        } catch (errorLimpieza) {}
 
         lectorBusqueda = null;
         escanerBusquedaActivo = false;
@@ -256,7 +292,6 @@ async function iniciarEscanerBusqueda() {
 }
 
 
-// ABRIR ESCÁNER DE BÚSQUEDA
 btnEscanearBusqueda.addEventListener("click", () => {
 
     iniciarEscanerBusqueda();
@@ -264,7 +299,6 @@ btnEscanearBusqueda.addEventListener("click", () => {
 });
 
 
-// CERRAR ESCÁNER DE BÚSQUEDA
 btnCerrarEscanerBusqueda.addEventListener("click", () => {
 
     detenerEscanerBusqueda();
@@ -273,10 +307,177 @@ btnCerrarEscanerBusqueda.addEventListener("click", () => {
 
 
 // =====================================
+// ESCÁNER DE EDICIÓN
+// =====================================
+
+async function detenerEscanerEdicion() {
+
+    if (lectorEdicion) {
+
+        try {
+
+            if (escanerEdicionActivo) {
+                await lectorEdicion.stop();
+            }
+
+        } catch (error) {
+
+            console.log("La cámara de edición ya estaba detenida.");
+
+        }
+
+        try {
+
+            await lectorEdicion.clear();
+
+        } catch (error) {
+
+            console.log("No fue necesario limpiar el lector de edición.");
+
+        }
+
+        lectorEdicion = null;
+
+    }
+
+    escanerEdicionActivo = false;
+    procesandoCodigoEdicion = false;
+
+    panelEscaner.hidden = true;
+
+}
+
+
+async function iniciarEscanerEdicion() {
+
+    if (!esAdministrador || !productoSeleccionado) {
+        return;
+    }
+
+    if (lectorEdicion || lectorBusqueda) {
+        return;
+    }
+
+    if (
+        typeof Html5Qrcode === "undefined" ||
+        typeof Html5QrcodeSupportedFormats === "undefined"
+    ) {
+
+        mensajeEscaner.textContent =
+            "No se pudo cargar el escáner. Recarga la página.";
+
+        panelEscaner.hidden = false;
+
+        return;
+
+    }
+
+    panelEscaner.hidden = false;
+
+    mensajeEscaner.textContent =
+        "Solicitando acceso a la cámara...";
+
+    procesandoCodigoEdicion = false;
+
+    lectorEdicion = new Html5Qrcode(
+        "lectorCamara",
+        {
+            formatsToSupport: obtenerFormatosEscaner(),
+            verbose: false
+        }
+    );
+
+    try {
+
+        await lectorEdicion.start(
+
+            { facingMode: "environment" },
+
+            {
+                fps: 10,
+                qrbox: {
+                    width: 250,
+                    height: 120
+                }
+            },
+
+            async (codigoLeido) => {
+
+                if (procesandoCodigoEdicion) {
+                    return;
+                }
+
+                procesandoCodigoEdicion = true;
+
+                // COLOCAR EL CÓDIGO EN EL CAMPO DE EDICIÓN
+                editarCodigo.value = codigoLeido;
+
+                mensajeEscaner.textContent =
+                    "Código leído correctamente.";
+
+                // DETENER LA CÁMARA
+                await detenerEscanerEdicion();
+
+                // ENFOCAR EL CAMPO DEL CÓDIGO
+                editarCodigo.focus();
+
+            },
+
+            () => {}
+
+        );
+
+        escanerEdicionActivo = true;
+
+        mensajeEscaner.textContent =
+            "Apunta la cámara al nuevo código de barras.";
+
+    } catch (error) {
+
+        console.error("Error iniciando escáner de edición:", error);
+
+        mensajeEscaner.textContent =
+            "No se pudo abrir la cámara. Comprueba los permisos.";
+
+        try {
+
+            if (lectorEdicion) {
+                await lectorEdicion.clear();
+            }
+
+        } catch (errorLimpieza) {}
+
+        lectorEdicion = null;
+        escanerEdicionActivo = false;
+
+    }
+
+}
+
+
+// ABRIR ESCÁNER DE EDICIÓN
+btnEscanearCodigo.addEventListener("click", () => {
+
+    iniciarEscanerEdicion();
+
+});
+
+
+// CERRAR ESCÁNER DE EDICIÓN
+btnCerrarEscaner.addEventListener("click", () => {
+
+    detenerEscanerEdicion();
+
+});
+
+
+// =====================================
 // CERRAR VENTANA DE PRODUCTO
 // =====================================
 
-function cerrarModal() {
+async function cerrarModal() {
+
+    await detenerEscanerEdicion();
 
     modalProducto.hidden = true;
 
@@ -289,10 +490,10 @@ function cerrarModal() {
 
 }
 
+
 btnCerrarModal.addEventListener("click", cerrarModal);
 
 
-// CERRAR AL TOCAR EL FONDO
 modalProducto.addEventListener("click", (evento) => {
 
     if (evento.target === modalProducto) {
@@ -306,11 +507,13 @@ modalProducto.addEventListener("click", (evento) => {
 // ABRIR VENTANA DE PRODUCTO
 // =====================================
 
-function abrirModal(producto) {
+async function abrirModal(producto) {
 
     if (!esAdministrador) {
         return;
     }
+
+    await detenerEscanerBusqueda();
 
     productoSeleccionado = producto;
     modoDuplicar = false;
@@ -412,13 +615,11 @@ function mostrarProductos() {
 
         detalles.appendChild(precio);
 
-
         tarjeta.appendChild(encabezado);
         tarjeta.appendChild(codigo);
         tarjeta.appendChild(detalles);
 
 
-        // SOLO EL ADMINISTRADOR PUEDE ABRIR LA VENTANA
         if (esAdministrador) {
 
             tarjeta.addEventListener("click", () => {
@@ -557,7 +758,7 @@ formEditarProducto.addEventListener("submit", async (evento) => {
     const btnGuardar = document.getElementById("btnGuardarCambios");
 
     btnGuardar.disabled = true;
-    btnGuardar.textContent = "Guardando...";
+    btnGuardar.textContent = "Guardando cambios...";
 
     try {
 
@@ -566,7 +767,6 @@ formEditarProducto.addEventListener("submit", async (evento) => {
         const snapshot = await get(inventarioRef);
         const inventario = snapshot.val() || {};
 
-        // COMPROBAR QUE EL CÓDIGO NO EXISTA
         if (
             inventario[codigo] &&
             (modoDuplicar || codigo !== productoSeleccionado.idFirebase)
@@ -625,7 +825,7 @@ formEditarProducto.addEventListener("submit", async (evento) => {
 
         }
 
-        cerrarModal();
+        await cerrarModal();
 
     } catch (error) {
 
@@ -693,7 +893,7 @@ btnEliminarProducto.addEventListener("click", async () => {
 
         alert("Producto eliminado correctamente.");
 
-        cerrarModal();
+        await cerrarModal();
 
     } catch (error) {
 
@@ -719,6 +919,7 @@ onAuthStateChanged(auth, async (usuario) => {
     }
 
     await detenerEscanerBusqueda();
+    await detenerEscanerEdicion();
 
     if (!usuario) {
 

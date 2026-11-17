@@ -293,6 +293,7 @@ onAuthStateChanged(auth, async (usuario) => {
 
         btnAdministrarUsuarios.hidden = !esAdministrador;
         btnRegistrar.hidden = !esAdministrador;
+        seccionAgregar.hidden = !esAdministrador;
 
     } else {
         mostrarLogin();
@@ -301,6 +302,7 @@ onAuthStateChanged(auth, async (usuario) => {
         btnAdministrarUsuarios.hidden = true;
         btnRegistrar.hidden = true;
         seccionRegistro.hidden = true;
+        seccionAgregar.hidden = true;
     }
 });
 

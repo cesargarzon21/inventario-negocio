@@ -10,7 +10,8 @@ import {
 import {
     ref,
     get,
-    runTransaction
+    runTransaction,
+    onValue
 } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-database.js";
 
 // ELEMENTOS DEL LOGIN
@@ -44,6 +45,23 @@ const porcentajeGanancia = document.getElementById("porcentajeGanancia");
 const btnGuardarProducto = document.getElementById("btnGuardarProducto");
 const mensajeProducto = document.getElementById("mensajeProducto");
 const btnEscanearRegistro = document.getElementById("btnEscanearRegistro");
+
+// ELEMENTOS DEL INVENTARIO
+const listaProductos = document.getElementById("listaProductos");
+const totalProductos = document.getElementById("totalProductos");
+const mensajeInventario = document.getElementById("mensajeInventario");
+const buscarProducto = document.getElementById("buscarProducto");
+
+// VARIABLES DEL INVENTARIO
+let productosActuales = [];
+let detenerInventario = null;
+
+// FORMATO DE DINERO COLOMBIANO
+const formatoDinero = new Intl.NumberFormat("es-CO", {
+    style: "currency",
+    currency: "COP",
+    maximumFractionDigits: 0
+});
 
 // ADMINISTRACIÓN DE USUARIOS
 btnAdministrarUsuarios.addEventListener("click", () => {
@@ -154,6 +172,158 @@ btnEscanearRegistro.addEventListener("click", () => {
     alert("El escáner de códigos se conectará en el siguiente paso. Por ahora puedes escribir el código manualmente.");
 });
 
+// CREAR UNA FILA DE INFORMACIÓN DEL PRODUCTO
+function crearDatoProducto(etiqueta, valor) {
+    const fila = document.createElement("div");
+    fila.className = "dato-producto";
+
+    const titulo = document.createElement("span");
+    titulo.textContent = etiqueta;
+
+    const contenido = document.createElement("strong");
+    contenido.textContent = valor;
+
+    fila.appendChild(titulo);
+    fila.appendChild(contenido);
+
+    return fila;
+}
+
+// MOSTRAR LOS PRODUCTOS EN PANTALLA
+function mostrarProductos(productos) {
+    listaProductos.replaceChildren();
+
+    const textoBusqueda = buscarProducto.value
+        .trim()
+        .toLowerCase();
+
+    const productosFiltrados = productos.filter((producto) => {
+        const nombre = String(producto.nombre || "").toLowerCase();
+        const codigo = String(producto.codigoBarras || "").toLowerCase();
+
+        return nombre.includes(textoBusqueda) ||
+            codigo.includes(textoBusqueda);
+    });
+
+    if (productosFiltrados.length === 0) {
+        const mensajeVacio = document.createElement("p");
+
+        mensajeVacio.className = "inventario-vacio";
+
+        mensajeVacio.textContent = productos.length === 0
+            ? "Todavía no hay productos registrados."
+            : "No se encontraron productos.";
+
+        listaProductos.appendChild(mensajeVacio);
+        return;
+    }
+
+    productosFiltrados.forEach((producto) => {
+        const tarjeta = document.createElement("article");
+        tarjeta.className = "producto-item";
+
+        const encabezado = document.createElement("div");
+        encabezado.className = "encabezado-producto";
+
+        const nombre = document.createElement("h3");
+        nombre.textContent = producto.nombre || "Producto sin nombre";
+
+        const cantidad = document.createElement("span");
+        cantidad.className = "cantidad-producto";
+        cantidad.textContent = "Stock: " + Number(producto.cantidad || 0);
+
+        encabezado.appendChild(nombre);
+        encabezado.appendChild(cantidad);
+
+        const codigo = document.createElement("p");
+        codigo.className = "codigo-producto";
+        codigo.textContent = "Código: " + (producto.codigoBarras || "No disponible");
+
+        const detalles = document.createElement("div");
+        detalles.className = "detalles-producto";
+
+        detalles.appendChild(
+            crearDatoProducto(
+                "Precio de compra",
+                formatoDinero.format(Number(producto.precioCompra || 0))
+            )
+        );
+
+        detalles.appendChild(
+            crearDatoProducto(
+                "Precio de venta",
+                formatoDinero.format(Number(producto.precioVenta || 0))
+            )
+        );
+
+        detalles.appendChild(
+            crearDatoProducto(
+                "Ganancia",
+                Number(producto.porcentajeGanancia || 0).toFixed(2) + "%"
+            )
+        );
+
+        tarjeta.appendChild(encabezado);
+        tarjeta.appendChild(codigo);
+        tarjeta.appendChild(detalles);
+
+        listaProductos.appendChild(tarjeta);
+    });
+}
+
+// CONECTAR INVENTARIO CON FIREBASE
+function escucharInventario() {
+    if (detenerInventario) {
+        detenerInventario();
+        detenerInventario = null;
+    }
+
+    mensajeInventario.textContent = "Cargando productos...";
+    listaProductos.replaceChildren();
+
+    const inventarioRef = ref(database, "inventario");
+
+    detenerInventario = onValue(
+        inventarioRef,
+
+        (snapshot) => {
+            const datos = snapshot.val();
+
+            productosActuales = datos
+                ? Object.entries(datos).map(([codigo, producto]) => ({
+                    ...producto,
+                    codigoBarras: producto.codigoBarras || codigo
+                }))
+                : [];
+
+            totalProductos.textContent = productosActuales.length;
+
+            mensajeInventario.textContent =
+                productosActuales.length === 1
+                    ? "1 producto registrado"
+                    : productosActuales.length + " productos registrados";
+
+            mostrarProductos(productosActuales);
+        },
+
+        (error) => {
+            console.error("Error cargando inventario:", error);
+
+            mensajeInventario.textContent =
+                "No se pudo cargar el inventario. Comprueba tus permisos.";
+
+            listaProductos.replaceChildren();
+            productosActuales = [];
+            totalProductos.textContent = "0";
+        }
+    );
+}
+
+// BUSCAR PRODUCTOS
+buscarProducto.addEventListener("input", () => {
+    mostrarProductos(productosActuales);
+});
+
 // GUARDAR PRODUCTO EN FIREBASE
 formProducto.addEventListener("submit", async (evento) => {
     evento.preventDefault();
@@ -221,7 +391,6 @@ formProducto.addEventListener("submit", async (evento) => {
             productoRef,
             (productoActual) => {
 
-                // PRODUCTO NUEVO
                 if (productoActual === null) {
                     return {
                         nombre: nombre,
@@ -233,7 +402,6 @@ formProducto.addEventListener("submit", async (evento) => {
                     };
                 }
 
-                // PRODUCTO EXISTENTE: SUMAR CANTIDAD
                 return {
                     ...productoActual,
                     cantidad: Number(productoActual.cantidad || 0) + cantidad
@@ -245,16 +413,8 @@ formProducto.addEventListener("submit", async (evento) => {
             throw new Error("No se pudo completar el registro.");
         }
 
-        if (resultado.snapshot.val().nombre === nombre &&
-            Number(resultado.snapshot.val().cantidad) === cantidad) {
-
-            mensajeProducto.textContent =
-                "¡Producto registrado correctamente!";
-
-        } else {
-            mensajeProducto.textContent =
-                "¡Cantidad actualizada correctamente!";
-        }
+        mensajeProducto.textContent =
+            "¡Producto guardado! El inventario se actualizará automáticamente.";
 
         formProducto.reset();
         porcentajeGanancia.textContent = "0%";
@@ -277,6 +437,16 @@ formProducto.addEventListener("submit", async (evento) => {
 
 // CONTROLAR SESIÓN
 onAuthStateChanged(auth, async (usuario) => {
+
+    if (detenerInventario) {
+        detenerInventario();
+        detenerInventario = null;
+    }
+
+    productosActuales = [];
+    totalProductos.textContent = "0";
+    listaProductos.replaceChildren();
+
     if (usuario) {
         mostrarInventario();
 
@@ -287,6 +457,7 @@ onAuthStateChanged(auth, async (usuario) => {
 
         btnAdministrarUsuarios.hidden = true;
         btnRegistrar.hidden = true;
+        seccionAgregar.hidden = true;
         seccionRegistro.hidden = true;
 
         const esAdministrador = await comprobarAdministrador();
@@ -295,14 +466,18 @@ onAuthStateChanged(auth, async (usuario) => {
         btnRegistrar.hidden = !esAdministrador;
         seccionAgregar.hidden = !esAdministrador;
 
+        escucharInventario();
+
     } else {
         mostrarLogin();
 
         menuDesplegable.hidden = true;
         btnAdministrarUsuarios.hidden = true;
         btnRegistrar.hidden = true;
-        seccionRegistro.hidden = true;
         seccionAgregar.hidden = true;
+        seccionRegistro.hidden = true;
+
+        mensajeInventario.textContent = "";
     }
 });
 
@@ -336,4 +511,4 @@ formulario.addEventListener("submit", async (evento) => {
     }
 });
 
-console.log("Sistema de autenticación y registro iniciado");
+console.log("Sistema de inventario iniciado correctamente");

@@ -9,7 +9,7 @@
 
     <title>Productos | Inventario</title>
 
-    <link rel="stylesheet" href="productos.css?v=1">
+    <link rel="stylesheet" href="productos.css?v=2">
 </head>
 
 <body>
@@ -23,6 +23,7 @@
         <h1>Productos</h1>
 
     </header>
+
 
     <main class="contenedor">
 
@@ -74,6 +75,197 @@
         </section>
 
     </main>
+
+
+    <!-- VENTANA EMERGENTE DEL PRODUCTO -->
+
+    <div
+        id="modalProducto"
+        class="modal-producto"
+        hidden
+    >
+
+        <div class="contenido-modal">
+
+            <!-- ENCABEZADO Y ACCIONES -->
+
+            <div class="encabezado-modal">
+
+                <h2 id="tituloModal">Editar producto</h2>
+
+                <div class="acciones-modal">
+
+                    <button
+                        type="button"
+                        id="btnEliminarProducto"
+                        class="btn-icono btn-eliminar"
+                        aria-label="Eliminar producto"
+                        title="Eliminar producto"
+                    >
+                        <svg
+                            viewBox="0 0 24 24"
+                            width="22"
+                            height="22"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        >
+                            <path d="M3 6h18"></path>
+                            <path d="M8 6V4h8v2"></path>
+                            <path d="M19 6l-1 14H6L5 6"></path>
+                            <path d="M10 11v5"></path>
+                            <path d="M14 11v5"></path>
+                        </svg>
+                    </button>
+
+
+                    <button
+                        type="button"
+                        id="btnDuplicarProducto"
+                        class="btn-icono btn-duplicar"
+                        aria-label="Duplicar producto"
+                        title="Duplicar producto"
+                    >
+                        <svg
+                            viewBox="0 0 24 24"
+                            width="22"
+                            height="22"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                        >
+                            <rect x="8" y="8" width="13" height="13" rx="2"></rect>
+                            <path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"></path>
+                        </svg>
+                    </button>
+
+
+                    <button
+                        type="button"
+                        id="btnCerrarModal"
+                        class="btn-icono btn-cerrar"
+                        aria-label="Cerrar ventana"
+                    >
+                        ✕
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- FORMULARIO -->
+
+            <form id="formEditarProducto">
+
+                <div class="campos-modal">
+
+                    <div class="campo-modal">
+
+                        <label for="editarNombre">
+                            Nombre del producto
+                        </label>
+
+                        <input
+                            type="text"
+                            id="editarNombre"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="campo-modal">
+
+                        <label for="editarCodigo">
+                            Código de barras
+                        </label>
+
+                        <input
+                            type="text"
+                            id="editarCodigo"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="campo-modal">
+
+                        <label for="editarPrecioCompra">
+                            Precio de compra
+                        </label>
+
+                        <input
+                            type="number"
+                            id="editarPrecioCompra"
+                            min="0"
+                            step="1"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="campo-modal">
+
+                        <label for="editarPrecioVenta">
+                            Precio de venta
+                        </label>
+
+                        <input
+                            type="number"
+                            id="editarPrecioVenta"
+                            min="0"
+                            step="1"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="campo-modal">
+
+                        <label for="editarCantidad">
+                            Cantidad en inventario
+                        </label>
+
+                        <input
+                            type="number"
+                            id="editarCantidad"
+                            min="0"
+                            step="1"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <p id="mensajeModal"></p>
+
+
+                <!-- GUARDAR CAMBIOS -->
+
+                <button
+                    type="submit"
+                    id="btnGuardarCambios"
+                    class="btn-guardar-cambios"
+                >
+                    Guardar cambios
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
 
     <script type="module" src="productos.js?v=2"></script>
 

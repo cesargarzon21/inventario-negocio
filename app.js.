@@ -1,8 +1,12 @@
 
-console.log("Sistema de inventario iniciado");
+import { auth, database } from "./firebase-config.js";
+
+console.log("Firebase conectado correctamente");
+console.log("Autenticación:", auth);
+console.log("Base de datos:", database);
 
 function iniciarAplicacion() {
-    console.log("Aplicación lista para funcionar");
+    console.log("Sistema de inventario iniciado");
 }
 
 iniciarAplicacion();

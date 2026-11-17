@@ -26,6 +26,11 @@ const btnCerrarSesion = document.getElementById("btnCerrarSesion");
 const btnAdministrarUsuarios = document.getElementById("btnAdministrarUsuarios");
 const correoUsuario = document.getElementById("correoUsuario");
 
+// ABRIR ADMINISTRACIÓN DE USUARIOS
+btnAdministrarUsuarios.addEventListener("click", () => {
+    window.location.href = "usuarios.html";
+});
+
 // MOSTRAR LOGIN
 function mostrarLogin() {
     pantallaLogin.hidden = false;

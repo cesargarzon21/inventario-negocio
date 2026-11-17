@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -8,7 +9,7 @@
 
     <title>Mi Inventario</title>
 
-    <link rel="stylesheet" href="styles.css?v=11">
+    <link rel="stylesheet" href="styles.css?v=12">
 </head>
 
 <body>
@@ -163,7 +164,8 @@
                         <input
                             type="text"
                             id="codigoBarras"
-                            placeholder="Escribe el código"
+                            placeholder="Escribe o escanea el código"
+                            autocomplete="off"
                             required
                         >
 
@@ -171,11 +173,32 @@
                             type="button"
                             id="btnEscanearRegistro"
                             aria-label="Escanear código"
+                            title="Escanear código de barras"
                         >
                             📷
                         </button>
 
                     </div>
+
+                    <!-- PANEL DEL ESCÁNER -->
+
+                    <div id="panelEscanerRegistro" hidden>
+
+                        <div id="lectorCamaraRegistro"></div>
+
+                        <p id="mensajeEscanerRegistro">
+                            Apunta la cámara al código de barras del producto.
+                        </p>
+
+                        <button
+                            type="button"
+                            id="btnCerrarEscanerRegistro"
+                        >
+                            Cancelar escaneo
+                        </button>
+
+                    </div>
+
 
                     <label for="precioCompra">Precio de compra</label>
 
@@ -233,7 +256,11 @@
     </div>
 
 
-    <script type="module" src="app.js?v=11"></script>
+    <!-- BIBLIOTECA PARA ESCANEAR CÓDIGOS DE BARRAS -->
+
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+    <script type="module" src="app.js?v=12"></script>
 
 </body>
 

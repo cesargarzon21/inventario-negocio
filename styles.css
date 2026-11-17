@@ -1,3 +1,6 @@
+
+/* CONFIGURACION GENERAL */
+
 * {
     box-sizing: border-box;
 }
@@ -5,133 +8,216 @@
 body {
     margin: 0;
     font-family: Arial, sans-serif;
-    background: #f7f9f8;
-    color: #252b2b;
+    background-color: #f8faf9;
+    color: #292d32;
 }
 
-/* Encabezado */
+/* ENCABEZADO */
 
 .encabezado {
-    background: #ffffff;
-    padding: 25px 25px 20px;
+    width: 100%;
+    min-height: 100px;
+    padding: 22px 28px;
+    background-color: #ffffff;
+
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
 }
 
 .encabezado h1 {
     margin: 0;
-    font-size: 34px;
+    font-size: 32px;
     font-weight: 700;
+    color: #25292d;
 }
+
+/* ICONO DE USUARIO */
 
 .usuario {
-    color: #42a98e;
-    font-size: 35px;
+    width: 42px;
+    height: 42px;
+    position: relative;
 }
 
-/* Contenido principal */
+.usuario::before {
+    content: "";
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: #42a98e;
+    border-radius: 50%;
+    top: 1px;
+    left: 13px;
+}
+
+.usuario::after {
+    content: "";
+    position: absolute;
+    width: 36px;
+    height: 19px;
+    background: #42a98e;
+    border-radius: 20px 20px 5px 5px;
+    bottom: 1px;
+    left: 3px;
+}
+
+/* CONTENEDOR PRINCIPAL */
 
 .contenedor {
     width: 100%;
     max-width: 650px;
-    margin: auto;
-    padding: 15px 20px 40px;
+    margin: 0 auto;
+    padding: 18px 25px 45px;
 }
 
-/* Buscador */
+/* BUSCADOR */
 
 .busqueda {
+    width: 100%;
+    min-height: 90px;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 15px;
+
+    padding: 12px 18px;
+    margin-bottom: 85px;
+
     background: #ffffff;
     border: 2px solid #55ad98;
-    border-radius: 18px;
-    padding: 12px 15px;
-    margin-bottom: 55px;
-    box-shadow: 0 4px 12px #00000010;
+    border-radius: 20px;
+
+    box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+}
+
+.icono {
+    flex-shrink: 0;
+    font-size: 29px;
+    color: #279c83;
 }
 
 .busqueda input {
     flex: 1;
+    width: 100%;
     min-width: 0;
+
     border: none;
     outline: none;
-    font-size: 17px;
-    padding: 12px 0;
     background: transparent;
+
+    padding: 12px 0;
+    margin: 0;
+
+    font-size: 18px;
 }
 
 .busqueda input::placeholder {
     color: #a0a6a4;
 }
 
-.icono {
-    color: #279c83;
-    font-size: 28px;
-}
-
 .busqueda button {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+
     border: none;
     background: transparent;
     color: #279c83;
-    font-size: 28px;
+
     padding: 5px;
+    margin: 0;
+
+    font-size: 29px;
 }
 
-/* Títulos */
+/* SECCIONES */
 
-section h2 {
-    font-size: 23px;
-    margin: 0 0 20px;
-}
-
-/* Tarjeta de producto */
-
-.productos {
-    margin-bottom: 55px;
-}
-
-.tarjeta-producto,
-.tarjeta-agregar {
+.productos,
+.agregar {
     width: 100%;
-    min-height: 105px;
+    background: transparent;
+    padding: 0;
+    margin: 0 0 65px;
+    border: none;
+}
+
+.productos h2,
+.agregar h2 {
+    font-size: 23px;
+    margin: 0 0 22px;
+    font-weight: 700;
+    color: #25292d;
+}
+
+/* TARJETA DE PRODUCTOS */
+
+.tarjeta-producto {
+    width: 100%;
+    min-height: 110px;
+
     display: flex;
     align-items: center;
     gap: 20px;
+
     padding: 18px 25px;
+
     background: #ffffff;
-    border: 1px solid #d8e9df;
+    border: 1px solid #cfe4d8;
     border-radius: 20px;
-    box-shadow: 0 3px 9px #00000012;
-    font-size: 21px;
-    font-weight: bold;
+
+    box-shadow: 0 4px 10px rgba(0,0,0,0.09);
+
     color: #555b5b;
     text-align: left;
+    font-size: 21px;
+    font-weight: 700;
 }
 
 .icono-producto {
     font-size: 42px;
+    flex-shrink: 0;
+}
+
+.tarjeta-producto span:nth-child(2) {
+    flex: 1;
+    text-align: center;
 }
 
 .tarjeta-producto strong {
-    margin-left: auto;
-    color: #607d83;
     font-size: 23px;
+    color: #607d83;
 }
 
-/* Añadir producto */
+/* TARJETA AÑADIR PRODUCTO */
 
 .tarjeta-agregar {
-    border-color: #f0dfd5;
+    width: 100%;
+    min-height: 110px;
+
+    display: flex;
+    align-items: center;
+    gap: 22px;
+
+    padding: 18px 25px;
+
+    background: #ffffff;
+    border: 1px solid #f0d8cc;
+    border-radius: 20px;
+
+    box-shadow: 0 4px 10px rgba(0,0,0,0.09);
+
+    color: #555b5b;
+    font-size: 21px;
+    font-weight: 700;
+    text-align: left;
 }
 
 .icono-agregar {
     font-size: 42px;
+    flex-shrink: 0;
 }
 
-/* Interacción */
+/* INTERACCION */
 
 button {
     cursor: pointer;
@@ -139,4 +225,38 @@ button {
 
 button:active {
     transform: scale(0.98);
+}
+
+/* ADAPTACION A CELULARES */
+
+@media (max-width: 480px) {
+
+    .encabezado {
+        padding: 20px 22px;
+    }
+
+    .encabezado h1 {
+        font-size: 29px;
+    }
+
+    .contenedor {
+        padding: 18px 20px 35px;
+    }
+
+    .busqueda {
+        margin-bottom: 65px;
+        gap: 10px;
+    }
+
+    .productos,
+    .agregar {
+        margin-bottom: 55px;
+    }
+
+    .tarjeta-producto,
+    .tarjeta-agregar {
+        min-height: 100px;
+        padding: 15px 18px;
+        font-size: 19px;
+    }
 }

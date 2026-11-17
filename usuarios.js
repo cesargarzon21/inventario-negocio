@@ -1,12 +1,14 @@
 
 import { auth, database, firebaseConfig } from "./firebase-config.js";
 
+import { initializeApp } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js";
+
 import {
     onAuthStateChanged,
-    initializeApp,
-    getApps,
-    deleteApp
-} from "https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js";
+    createUserWithEmailAndPassword,
+    signOut,
+    getAuth
+} from "https://www.gstatic.com/firebasejs/13.4.0/firebase-auth.js";
 
 import {
     createUserWithEmailAndPassword,

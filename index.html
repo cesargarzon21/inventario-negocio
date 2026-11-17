@@ -4,16 +4,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#16a34a">
+    <meta name="theme-color" content="#15803d">
     <title>Mi Inventario</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
+    <header class="encabezado">
+        <h1>Mi Inventario</h1>
+        <p>Control de productos y existencias</p>
+    </header>
+
+    <main class="contenedor">
+
+        <section class="busqueda">
+            <h2>Consultar productos</h2>
+
+            <input
+                type="text"
+                id="buscarProducto"
+                placeholder="Nombre o código de barras"
+            >
+
+            <button id="btnBuscar">Buscar producto</button>
+        </section>
+
+        <section class="acciones">
+            <h2>Opciones</h2>
+
+            <button id="btnEscanear">
+                Escanear código de barras
+            </button>
+
+            <button id="btnRegistrar">
+                Registrar producto
+            </button>
+
+            <button id="btnInventario">
+                Ver inventario
+            </button>
+        </section>
+
+        <section id="resultado">
+            <h2>Resultados</h2>
+            <p>Aquí aparecerán los productos consultados.</p>
+        </section>
+
+    </main>
+
     <script src="app.js"></script>
-
-    <h1>Mi Inventario</h1>
-
-    <p>Bienvenido a tu sistema de inventario.</p>
 
 </body>
 </html>

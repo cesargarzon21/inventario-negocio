@@ -1,0 +1,8 @@
+
+console.log("Sistema de inventario iniciado");
+
+function iniciarAplicacion() {
+    console.log("Aplicación lista para funcionar");
+}
+
+iniciarAplicacion();

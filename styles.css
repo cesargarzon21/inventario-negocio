@@ -369,5 +369,71 @@ button:active {
     color: #c0392b;
     margin: 5px 0 0;
 }
+
+/* MENÚ DESPLEGABLE DEL USUARIO */
+
+.menu-usuario {
+    position: relative;
+}
+
+button.usuario {
+    cursor: pointer;
+    border: none;
+    font: inherit;
+}
+
+.desplegable-usuario {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    width: 245px;
+    padding: 12px;
+    background: #ffffff;
+    border: 1px solid #e5ece8;
+    border-radius: 14px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+    z-index: 1000;
+}
+
+.datos-usuario {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px;
+    border-bottom: 1px solid #edf1ee;
+    margin-bottom: 8px;
+}
+
+.datos-usuario strong {
+    color: #075b46;
+    font-size: 15px;
+}
+
+.datos-usuario span {
+    color: #718078;
+    font-size: 12px;
+    overflow-wrap: anywhere;
+}
+
+.desplegable-usuario button {
+    display: block;
+    width: 100%;
+    padding: 12px 10px;
+    border: none;
+    border-radius: 9px;
+    background: transparent;
+    color: #344b41;
+    text-align: left;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.desplegable-usuario button:hover {
+    background: #edf7f2;
+}
+
+#btnCerrarSesion {
+    color: #c0392b;
+}
     
 

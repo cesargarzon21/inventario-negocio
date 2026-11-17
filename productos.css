@@ -1,3 +1,4 @@
+
 * {
     box-sizing: border-box;
 }
@@ -18,200 +19,136 @@ body {
     border-bottom: 1px solid #e8efeb;
 }
 
-.encabezado h1 {
-    margin: 0;
-    font-size: 21px;
-    color: #075b46;
-}
-
-#btnVolver {
-    width: 40px;
-    height: 40px;
+.btn-volver {
+    width: 42px;
+    height: 42px;
     border: none;
     border-radius: 10px;
-    background: #eaf5ef;
-    color: #075b46;
-    font-size: 25px;
+    background: #eaf5ee;
+    color: #247747;
+    font-size: 22px;
     cursor: pointer;
 }
 
-.contenedor {
+.encabezado h1 {
+    margin: 0;
+    font-size: 21px;
+    font-weight: 700;
+}
+
+.contenedor-productos {
     width: 100%;
-    max-width: 650px;
-    margin: 25px auto;
-    padding: 0 18px;
+    max-width: 750px;
+    margin: 0 auto;
+    padding: 20px;
 }
-
-.tarjeta {
-    background: #ffffff;
-    padding: 22px;
-    margin-bottom: 20px;
-    border-radius: 16px;
-    border: 1px solid #e8efeb;
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.035);
-}
-
-.tarjeta h2 {
-    margin: 0 0 8px;
-    color: #075b46;
-    font-size: 19px;
-}
-
-.titulo-seccion p {
-    margin: 0 0 20px;
-    color: #718078;
-    font-size: 14px;
-}
-
-/* RESUMEN DE PRODUCTOS */
 
 .resumen-productos {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     padding: 18px;
-    background: #edf7f2;
-    border-radius: 12px;
+    margin-bottom: 18px;
+    background: #ffffff;
+    border: 1px solid #e4eee8;
+    border-radius: 14px;
 }
 
-.resumen-productos div {
-    display: flex;
-    flex-direction: column;
-    gap: 7px;
-}
-
-.resumen-productos div span {
-    color: #526b5e;
-    font-size: 13px;
-}
-
-.resumen-productos div strong {
-    color: #075b46;
-    font-size: 30px;
-}
-
-.icono-resumen {
-    font-size: 32px;
-}
-
-/* BUSCADOR */
-
-.busqueda-productos {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-top: 18px;
-    padding: 0 13px;
-    border: 1px solid #dce7e1;
-    border-radius: 10px;
-    background: #f8fbf9;
-}
-
-.busqueda-productos span {
-    color: #718078;
-    font-size: 24px;
-}
-
-.busqueda-productos input {
-    width: 100%;
-    min-width: 0;
-    padding: 14px 0;
-    border: none;
-    outline: none;
-    background: transparent;
-    color: #263c32;
+.resumen-productos p {
+    margin: 0 0 8px;
+    color: #64756b;
     font-size: 14px;
 }
 
-/* MENSAJES */
-
-#mensajeProductos {
-    margin: 15px 0;
-    color: #718078;
-    font-size: 13px;
+.resumen-productos strong {
+    font-size: 28px;
+    color: #247747;
 }
 
-/* LISTA DE PRODUCTOS */
+#mensajeProductos {
+    margin: 12px 0;
+    color: #64756b;
+    font-size: 14px;
+}
+
+#buscarProducto {
+    width: 100%;
+    padding: 14px;
+    margin-bottom: 18px;
+    border: 1px solid #dce7df;
+    border-radius: 10px;
+    background: #ffffff;
+    font-size: 16px;
+    outline: none;
+}
+
+#buscarProducto:focus {
+    border-color: #32965b;
+}
 
 #listaProductos {
     display: flex;
     flex-direction: column;
-    gap: 14px;
-    margin-top: 15px;
+    gap: 12px;
 }
 
 .producto-item {
-    padding: 17px;
+    padding: 16px;
     background: #ffffff;
-    border: 1px solid #e5ece8;
-    border-radius: 14px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
+    border: 1px solid #e4eee8;
+    border-radius: 13px;
     cursor: pointer;
-    transition: background 0.2s, border-color 0.2s;
 }
 
 .producto-item:active {
-    background: #edf7f2;
+    background: #f1f8f3;
 }
 
 .encabezado-producto {
     display: flex;
-    align-items: flex-start;
     justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 9px;
+    align-items: flex-start;
+    gap: 10px;
 }
 
 .encabezado-producto h3 {
     margin: 0;
-    color: #075b46;
     font-size: 16px;
-    overflow-wrap: anywhere;
+    color: #263c32;
 }
 
 .cantidad-producto {
-    flex-shrink: 0;
-    padding: 6px 9px;
-    background: #edf7f2;
-    color: #075b46;
+    padding: 5px 9px;
     border-radius: 20px;
+    background: #eaf5ee;
+    color: #247747;
     font-size: 12px;
-    font-weight: 700;
+    white-space: nowrap;
 }
 
 .codigo-producto {
-    margin: 0 0 15px;
-    color: #87948d;
-    font-size: 12px;
-    overflow-wrap: anywhere;
+    margin: 10px 0;
+    color: #718078;
+    font-size: 13px;
 }
 
 .detalles-producto {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    justify-content: flex-start;
 }
 
 .detalles-producto strong {
-    color: #075b46;
-    font-size: 19px;
-    font-weight: 700;
+    color: #247747;
+    font-size: 17px;
 }
 
 .inventario-vacio {
-    padding: 25px 15px;
-    color: #87948d;
+    padding: 30px 15px;
     text-align: center;
-    font-size: 14px;
+    color: #718078;
     background: #ffffff;
-    border: 1px dashed #dce5df;
     border-radius: 12px;
 }
 
-
-/* =================================
-   VENTANA EMERGENTE DEL PRODUCTO
-================================= */
+/* VENTANA MODAL */
 
 .modal-producto {
     position: fixed;
@@ -220,90 +157,81 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 16px;
-    background: rgba(17, 35, 27, 0.58);
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.55);
 }
-
-/* OCULTAR VENTANA CUANDO ESTÁ CERRADA */
 
 .modal-producto[hidden] {
     display: none;
 }
 
-/* CONTENIDO DE LA VENTANA */
-
 .contenido-modal {
     width: 100%;
-    max-width: 480px;
+    max-width: 520px;
     max-height: 90vh;
     overflow-y: auto;
     padding: 22px;
     background: #ffffff;
-    border-radius: 18px;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+    border-radius: 16px;
 }
-
-/* ENCABEZADO DE LA VENTANA */
 
 .encabezado-modal {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    margin-bottom: 24px;
+    margin-bottom: 22px;
 }
 
 .encabezado-modal h2 {
     margin: 0;
-    color: #075b46;
     font-size: 20px;
+    color: #263c32;
 }
 
 .acciones-modal {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 7px;
 }
-
-/* BOTONES DE ICONOS */
 
 .btn-icono {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    width: 38px;
+    height: 38px;
+    padding: 8px;
     border: none;
-    border-radius: 10px;
+    border-radius: 9px;
     cursor: pointer;
 }
 
+.btn-icono svg {
+    width: 20px;
+    height: 20px;
+}
+
 .btn-eliminar {
-    background: #fff0f0;
+    background: #fff0ef;
     color: #d93636;
 }
 
 .btn-duplicar {
-    background: #edf7f2;
-    color: #075b46;
+    background: #eaf5ee;
+    color: #247747;
 }
 
 .btn-cerrar {
     background: #f0f2f1;
-    color: #52635a;
-    font-size: 17px;
+    color: #526158;
+    font-size: 18px;
 }
-
-.btn-icono:active {
-    transform: scale(0.94);
-}
-
-/* CAMPOS DEL FORMULARIO */
 
 .campos-modal {
     display: flex;
     flex-direction: column;
-    gap: 17px;
+    gap: 15px;
 }
 
 .campo-modal {
@@ -313,71 +241,146 @@ body {
 }
 
 .campo-modal label {
-    color: #526b5e;
-    font-size: 13px;
-    font-weight: 700;
+    color: #43564a;
+    font-size: 14px;
+    font-weight: 600;
 }
 
 .campo-modal input {
     width: 100%;
+    min-width: 0;
     padding: 13px;
-    border: 1px solid #dce7e1;
-    border-radius: 10px;
-    outline: none;
-    background: #f8fbf9;
+    border: 1px solid #dce7df;
+    border-radius: 9px;
+    background: #ffffff;
     color: #263c32;
-    font-family: Arial, sans-serif;
-    font-size: 15px;
+    font-size: 16px;
+    outline: none;
 }
 
 .campo-modal input:focus {
-    border-color: #075b46;
-    background: #ffffff;
+    border-color: #32965b;
 }
 
-/* MENSAJE DE LA VENTANA */
+/* CAMPO DE CÓDIGO Y ESCÁNER */
+
+.campo-codigo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.campo-codigo input {
+    flex: 1;
+    min-width: 0;
+}
+
+.btn-escanear {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    padding: 10px;
+    border: none;
+    border-radius: 10px;
+    background: #247747;
+    color: #ffffff;
+    cursor: pointer;
+}
+
+.btn-escanear:active {
+    background: #185b34;
+}
+
+.btn-escanear:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* PANEL DE CÁMARA */
+
+#panelEscaner[hidden] {
+    display: none;
+}
+
+#panelEscaner {
+    margin-top: 14px;
+    padding: 12px;
+    border: 1px solid #dce7df;
+    border-radius: 12px;
+    background: #f5faf6;
+}
+
+#lectorCamara {
+    width: 100%;
+    overflow: hidden;
+    border-radius: 9px;
+    background: #17251c;
+}
+
+#lectorCamara video {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 9px;
+}
+
+#mensajeEscaner {
+    margin: 12px 0;
+    color: #43564a;
+    font-size: 13px;
+    text-align: center;
+}
+
+#btnCerrarEscaner {
+    width: 100%;
+    padding: 11px;
+    border: 1px solid #dce7df;
+    border-radius: 9px;
+    background: #ffffff;
+    color: #43564a;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+#btnCerrarEscaner:active {
+    background: #eaf5ee;
+}
+
+/* MENSAJES Y GUARDADO */
 
 #mensajeModal {
-    margin: 12px 0;
+    margin: 14px 0;
     color: #c0392b;
     font-size: 13px;
 }
 
-/* BOTÓN GUARDAR */
-
 .btn-guardar-cambios {
     width: 100%;
-    margin-top: 12px;
-    padding: 15px;
+    padding: 14px;
     border: none;
-    border-radius: 11px;
-    background: #075b46;
+    border-radius: 10px;
+    background: #247747;
     color: #ffffff;
-    font-size: 15px;
-    font-weight: 700;
+    font-size: 16px;
+    font-weight: 600;
     cursor: pointer;
 }
 
 .btn-guardar-cambios:active {
-    background: #064735;
-    transform: scale(0.99);
+    background: #185b34;
 }
 
+.btn-guardar-cambios:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
 
-/* ADAPTACIÓN PARA CELULARES */
-
-@media (max-width: 350px) {
-
-    .tarjeta {
-        padding: 16px;
-    }
-
-    .producto-item {
-        padding: 13px;
-    }
-
-    .encabezado-producto h3 {
-        font-size: 14px;
+@media (max-width: 480px) {
+    .contenedor-productos {
+        padding: 14px;
     }
 
     .contenido-modal {
@@ -385,24 +388,6 @@ body {
     }
 
     .encabezado-modal h2 {
-        font-size: 17px;
+        font-size: 18px;
     }
-
-    .acciones-modal {
-        gap: 5px;
-    }
-
-    .btn-icono {
-        width: 36px;
-        height: 36px;
-    }
-
-}
-
-@media (max-height: 600px) {
-
-    .contenido-modal {
-        max-height: 95vh;
-    }
-
 }

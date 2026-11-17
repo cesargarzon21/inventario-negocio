@@ -20,179 +20,115 @@ import {
     remove
 } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-database.js";
 
-// ======================================
-// ELEMENTOS HTML
-// ======================================
-
 const formulario = document.getElementById("formCrearUsuario");
 const nombreEmpleado = document.getElementById("nombreEmpleado");
 const correoEmpleado = document.getElementById("correoEmpleado");
 const contrasenaEmpleado = document.getElementById("contrasenaEmpleado");
-const botonCrear = document.getElementById("btnCrearUsuario");
-const mensaje = document.getElementById("mensajeUsuario");
+const btnCrearUsuario = document.getElementById("btnCrearUsuario");
+const mensajeUsuario = document.getElementById("mensajeUsuario");
 const listaUsuarios = document.getElementById("listaUsuarios");
 const btnVolver = document.getElementById("btnVolver");
 
-// ======================================
-// INSTANCIA SECUNDARIA
-// ======================================
-
 let appSecundaria = null;
 let authSecundario = null;
-
-// ======================================
-// VOLVER AL INVENTARIO
-// ======================================
 
 btnVolver.addEventListener("click", () => {
     window.location.href = "index.html";
 });
 
-// ======================================
-// COMPROBAR ADMINISTRADOR
-// ======================================
-
 async function comprobarAdministrador() {
-
-    const usuario = auth.currentUser;
-
-    if (!usuario) {
-        return false;
-    }
+    if (!auth.currentUser) return false;
 
     try {
-        await get(ref(database, "usuariosAutorizados"));
-        return true;
-
+        const resultado = await get(ref(database, "usuariosAutorizados"));
+        return resultado.exists();
     } catch (error) {
-        console.error("Error comprobando administrador:", error);
         return false;
     }
 }
-
-// ======================================
-// MOSTRAR MENSAJES
-// ======================================
-
-function mostrarMensaje(texto, color = "#075b46") {
-    mensaje.textContent = texto;
-    mensaje.style.color = color;
-}
-
-// ======================================
-// CARGAR EMPLEADOS
-// ======================================
 
 async function cargarUsuarios() {
-
-    listaUsuarios.textContent = "Cargando empleados...";
+    listaUsuarios.innerHTML = "<p>Cargando empleados...</p>";
 
     try {
-
-        const resultado = await get(
-            ref(database, "usuariosAutorizados")
-        );
-
-        listaUsuarios.innerHTML = "";
+        const resultado = await get(ref(database, "usuariosAutorizados"));
 
         if (!resultado.exists()) {
-            listaUsuarios.textContent =
-                "Todavía no hay empleados registrados.";
+            listaUsuarios.innerHTML = "<p>Todavía no hay empleados registrados.</p>";
             return;
         }
 
-        resultado.forEach((elemento) => {
+        const usuarios = resultado.val();
 
-            const uid = elemento.key;
-            const autorizado = elemento.val();
+        const perfilesResultado = await get(ref(database, "perfilesUsuarios"));
+        const perfiles = perfilesResultado.exists()
+            ? perfilesResultado.val()
+            : {};
 
-            if (autorizado !== true) {
-                return;
-            }
+        listaUsuarios.innerHTML = "";
+
+        for (const uid in usuarios) {
+            if (usuarios[uid] !== true) continue;
+
+            const perfil = perfiles[uid] || {};
 
             const tarjeta = document.createElement("div");
+            tarjeta.className = "usuario-item";
 
-            tarjeta.style.padding = "14px";
-            tarjeta.style.marginBottom = "10px";
-            tarjeta.style.border = "1px solid #e5ece8";
-            tarjeta.style.borderRadius = "10px";
-            tarjeta.style.background = "#f8fbf9";
+            const informacion = document.createElement("div");
+            informacion.className = "usuario-info";
 
-            const identificador = document.createElement("p");
+            const nombre = document.createElement("strong");
+            nombre.textContent = perfil.nombre || "Nombre no disponible";
 
-            identificador.textContent = "ID: " + uid;
-            identificador.style.fontSize = "12px";
-            identificador.style.overflowWrap = "anywhere";
+            const correo = document.createElement("span");
+            correo.textContent = perfil.correo || "Correo no disponible";
 
-            const estado = document.createElement("p");
+            const estado = document.createElement("span");
+            estado.textContent = "Estado: Autorizado";
 
-            estado.textContent = "Acceso autorizado";
-            estado.style.color = "#168568";
+            informacion.appendChild(nombre);
+            informacion.appendChild(correo);
+            informacion.appendChild(estado);
 
             const botonRevocar = document.createElement("button");
-
+            botonRevocar.type = "button";
             botonRevocar.textContent = "Revocar acceso";
-            botonRevocar.style.padding = "10px";
-            botonRevocar.style.border = "none";
-            botonRevocar.style.borderRadius = "8px";
-            botonRevocar.style.background = "#fcebea";
-            botonRevocar.style.color = "#c0392b";
 
             botonRevocar.addEventListener("click", async () => {
-
                 const confirmar = confirm(
-                    "¿Seguro que deseas revocar el acceso de este empleado?"
+                    `¿Deseas revocar el acceso de ${perfil.nombre || perfil.correo || "este empleado"}?`
                 );
 
-                if (!confirmar) {
-                    return;
-                }
+                if (!confirmar) return;
+
+                botonRevocar.disabled = true;
 
                 try {
-
-                    await remove(
-                        ref(database, "usuariosAutorizados/" + uid)
-                    );
+                    await remove(ref(database, "usuariosAutorizados/" + uid));
 
                     alert("Acceso revocado correctamente.");
-
                     await cargarUsuarios();
 
                 } catch (error) {
-
-                    console.error(error);
-
                     alert("No se pudo revocar el acceso.");
+                    botonRevocar.disabled = false;
                 }
             });
 
-            tarjeta.appendChild(identificador);
-            tarjeta.appendChild(estado);
+            tarjeta.appendChild(informacion);
             tarjeta.appendChild(botonRevocar);
 
             listaUsuarios.appendChild(tarjeta);
-        });
-
-        if (!listaUsuarios.children.length) {
-            listaUsuarios.textContent =
-                "No hay empleados autorizados.";
         }
 
     } catch (error) {
-
-        console.error("Error cargando empleados:", error);
-
-        listaUsuarios.textContent =
-            "No se pudo cargar la lista de empleados.";
+        console.error(error);
+        listaUsuarios.innerHTML = "<p>No se pudo cargar la lista de empleados.</p>";
     }
 }
 
-// ======================================
-// CREAR EMPLEADO
-// ======================================
-
 formulario.addEventListener("submit", async (evento) => {
-
     evento.preventDefault();
 
     const nombre = nombreEmpleado.value.trim();
@@ -200,35 +136,23 @@ formulario.addEventListener("submit", async (evento) => {
     const contrasena = contrasenaEmpleado.value;
 
     if (!nombre || !correo || contrasena.length < 6) {
-
-        mostrarMensaje(
-            "Verifica los datos ingresados.",
-            "#c0392b"
-        );
-
+        mensajeUsuario.textContent = "Completa todos los campos correctamente.";
         return;
     }
 
-    botonCrear.disabled = true;
-
-    mostrarMensaje("Creando cuenta...");
+    btnCrearUsuario.disabled = true;
+    mensajeUsuario.textContent = "Creando cuenta...";
 
     let uidCreado = null;
 
     try {
-
         const esAdministrador = await comprobarAdministrador();
 
         if (!esAdministrador) {
-            throw new Error(
-                "No tienes permisos de administrador."
-            );
+            throw new Error("No tienes permisos de administrador.");
         }
 
-        // Crear segunda instancia de Firebase
-
         if (!appSecundaria) {
-
             appSecundaria = initializeApp(
                 firebaseConfig,
                 "AplicacionEmpleados"
@@ -236,8 +160,6 @@ formulario.addEventListener("submit", async (evento) => {
 
             authSecundario = getAuth(appSecundaria);
         }
-
-        // Crear cuenta del empleado
 
         const credencial = await createUserWithEmailAndPassword(
             authSecundario,
@@ -247,14 +169,10 @@ formulario.addEventListener("submit", async (evento) => {
 
         uidCreado = credencial.user.uid;
 
-        // Autorizar acceso al inventario
-
         await set(
             ref(database, "usuariosAutorizados/" + uidCreado),
             true
         );
-
-        // Guardar información del empleado
 
         await set(
             ref(database, "perfilesUsuarios/" + uidCreado),
@@ -265,28 +183,20 @@ formulario.addEventListener("submit", async (evento) => {
             }
         );
 
-        // Cerrar únicamente la sesión secundaria
-
         await signOut(authSecundario);
 
-        mostrarMensaje(
-            "Empleado creado y autorizado correctamente."
-        );
+        mensajeUsuario.textContent =
+            "Empleado creado y autorizado correctamente.";
 
         formulario.reset();
 
         await cargarUsuarios();
 
     } catch (error) {
-
-        console.error("Error creando empleado:", error);
-
-        // Intentar limpiar el registro si quedó incompleto
+        console.error(error);
 
         if (uidCreado) {
-
             try {
-
                 await remove(
                     ref(database, "usuariosAutorizados/" + uidCreado)
                 );
@@ -294,59 +204,37 @@ formulario.addEventListener("submit", async (evento) => {
                 await remove(
                     ref(database, "perfilesUsuarios/" + uidCreado)
                 );
-
-                if (
-                    authSecundario &&
-                    authSecundario.currentUser
-                ) {
-                    await deleteUser(authSecundario.currentUser);
-                }
-
             } catch (errorLimpieza) {
-
-                console.error(
-                    "No se pudo completar la limpieza:",
-                    errorLimpieza
-                );
+                console.error(errorLimpieza);
             }
         }
 
         if (error.code === "auth/email-already-in-use") {
-
-            mostrarMensaje(
-                "Este correo ya está registrado.",
-                "#c0392b"
-            );
-
+            mensajeUsuario.textContent =
+                "Este correo electrónico ya está registrado.";
         } else if (error.code === "auth/weak-password") {
-
-            mostrarMensaje(
-                "La contraseña es demasiado débil.",
-                "#c0392b"
-            );
-
+            mensajeUsuario.textContent =
+                "La contraseña debe tener al menos 6 caracteres.";
         } else {
+            mensajeUsuario.textContent =
+                error.message || "No se pudo crear el empleado.";
+        }
 
-            mostrarMensaje(
-                error.message || "No se pudo crear el empleado.",
-                "#c0392b"
-            );
+        if (authSecundario && authSecundario.currentUser) {
+            try {
+                await signOut(authSecundario);
+            } catch (errorSalida) {
+                console.error(errorSalida);
+            }
         }
 
     } finally {
-
-        botonCrear.disabled = false;
+        btnCrearUsuario.disabled = false;
     }
 });
 
-// ======================================
-// COMPROBAR SESIÓN Y PERMISOS
-// ======================================
-
 onAuthStateChanged(auth, async (usuario) => {
-
     if (!usuario) {
-
         window.location.href = "index.html";
         return;
     }
@@ -354,16 +242,10 @@ onAuthStateChanged(auth, async (usuario) => {
     const esAdministrador = await comprobarAdministrador();
 
     if (!esAdministrador) {
-
-        alert(
-            "No tienes autorización para administrar usuarios."
-        );
-
+        alert("No tienes permisos para administrar usuarios.");
         window.location.href = "index.html";
         return;
     }
 
     await cargarUsuarios();
 });
-
-console.log("Módulo de administración iniciado");

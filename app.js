@@ -1,3 +1,4 @@
+
 import { auth, database } from "./firebase-config.js";
 
 import {
@@ -54,8 +55,18 @@ const mensajeProducto = document.getElementById("mensajeProducto");
 const btnEscanearRegistro = document.getElementById("btnEscanearRegistro");
 
 
+// ELEMENTOS DEL ESCÁNER
+const panelEscanerRegistro = document.getElementById("panelEscanerRegistro");
+const lectorCamaraRegistro = document.getElementById("lectorCamaraRegistro");
+const mensajeEscanerRegistro = document.getElementById("mensajeEscanerRegistro");
+const btnCerrarEscanerRegistro = document.getElementById("btnCerrarEscanerRegistro");
+
+
 // VARIABLES
 let detenerInventario = null;
+let lectorCodigoRegistro = null;
+let escanerRegistroActivo = false;
+let procesandoCodigo = false;
 
 
 // ADMINISTRAR USUARIOS
@@ -121,6 +132,7 @@ btnCerrarSesion.addEventListener("click", async () => {
 
     try {
 
+        await detenerEscanerRegistro();
         await signOut(auth);
         menuDesplegable.hidden = true;
 
@@ -174,7 +186,9 @@ btnRegistrar.addEventListener("click", () => {
 
 
 // CERRAR FORMULARIO
-btnCerrarFormulario.addEventListener("click", () => {
+btnCerrarFormulario.addEventListener("click", async () => {
+
+    await detenerEscanerRegistro();
 
     seccionRegistro.hidden = true;
     formProducto.reset();
@@ -213,14 +227,148 @@ precioCompra.addEventListener("input", calcularGanancia);
 precioVenta.addEventListener("input", calcularGanancia);
 
 
-// ESCÁNER DEL FORMULARIO
-btnEscanearRegistro.addEventListener("click", () => {
+// DETENER ESCÁNER
+async function detenerEscanerRegistro() {
 
-    alert(
-        "El escáner de códigos se conectará en el siguiente paso. Por ahora puedes escribir el código manualmente."
-    );
+    if (lectorCodigoRegistro) {
 
-});
+        try {
+
+            if (escanerRegistroActivo) {
+                await lectorCodigoRegistro.stop();
+            }
+
+            await lectorCodigoRegistro.clear();
+
+        } catch (error) {
+
+            console.error("Error deteniendo escáner:", error);
+
+        }
+
+    }
+
+    lectorCodigoRegistro = null;
+    escanerRegistroActivo = false;
+    procesandoCodigo = false;
+
+    panelEscanerRegistro.hidden = true;
+
+}
+
+
+// INICIAR ESCÁNER
+async function iniciarEscanerRegistro() {
+
+    if (escanerRegistroActivo || lectorCodigoRegistro) {
+        return;
+    }
+
+    if (
+        typeof Html5Qrcode === "undefined" ||
+        typeof Html5QrcodeSupportedFormats === "undefined"
+    ) {
+
+        mensajeEscanerRegistro.textContent =
+            "No se pudo cargar el escáner. Recarga la página e inténtalo nuevamente.";
+
+        panelEscanerRegistro.hidden = false;
+        return;
+
+    }
+
+    panelEscanerRegistro.hidden = false;
+
+    mensajeEscanerRegistro.textContent =
+        "Solicitando acceso a la cámara...";
+
+    procesandoCodigo = false;
+
+    try {
+
+        const formatos = [
+            Html5QrcodeSupportedFormats.EAN_13,
+            Html5QrcodeSupportedFormats.EAN_8,
+            Html5QrcodeSupportedFormats.UPC_A,
+            Html5QrcodeSupportedFormats.UPC_E,
+            Html5QrcodeSupportedFormats.CODE_128,
+            Html5QrcodeSupportedFormats.CODE_39,
+            Html5QrcodeSupportedFormats.ITF,
+            Html5QrcodeSupportedFormats.CODABAR
+        ];
+
+        lectorCodigoRegistro = new Html5Qrcode(
+            "lectorCamaraRegistro",
+            {
+                formatsToSupport: formatos,
+                verbose: false
+            }
+        );
+
+        await lectorCodigoRegistro.start(
+
+            { facingMode: "environment" },
+
+            {
+                fps: 10,
+                qrbox: {
+                    width: 250,
+                    height: 120
+                }
+            },
+
+            async (codigoLeido) => {
+
+                if (procesandoCodigo) {
+                    return;
+                }
+
+                procesandoCodigo = true;
+
+                codigoBarras.value = codigoLeido;
+
+                mensajeEscanerRegistro.textContent =
+                    "¡Código leído correctamente!";
+
+                await detenerEscanerRegistro();
+
+                codigoBarras.focus();
+
+            },
+
+            () => {
+                // No mostrar errores por cada fotograma sin lectura.
+            }
+
+        );
+
+        escanerRegistroActivo = true;
+
+        mensajeEscanerRegistro.textContent =
+            "Apunta la cámara al código de barras del producto.";
+
+    } catch (error) {
+
+        console.error("Error iniciando escáner:", error);
+
+        await detenerEscanerRegistro();
+
+        panelEscanerRegistro.hidden = false;
+
+        mensajeEscanerRegistro.textContent =
+            "No se pudo iniciar la cámara. Comprueba los permisos del navegador e inténtalo nuevamente.";
+
+    }
+
+}
+
+
+// BOTÓN PARA ESCANEAR
+btnEscanearRegistro.addEventListener("click", iniciarEscanerRegistro);
+
+
+// BOTÓN PARA CANCELAR ESCANEO
+btnCerrarEscanerRegistro.addEventListener("click", detenerEscanerRegistro);
 
 
 // ACTUALIZAR CONTADOR DE PRODUCTOS
@@ -417,6 +565,8 @@ onAuthStateChanged(auth, async (usuario) => {
         detenerInventario();
         detenerInventario = null;
     }
+
+    await detenerEscanerRegistro();
 
     totalProductos.textContent = "0";
 

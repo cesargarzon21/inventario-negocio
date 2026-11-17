@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 
@@ -9,7 +8,7 @@
 
     <title>Mi Inventario</title>
 
-    <link rel="stylesheet" href="styles.css?v=10">
+    <link rel="stylesheet" href="styles.css?v=11">
 </head>
 
 <body>
@@ -90,51 +89,6 @@
 
         <main class="contenedor">
 
-            <!-- BUSCADOR Y ESCÁNER -->
-
-            <section class="busqueda">
-
-                <span class="icono">⌕</span>
-
-                <input
-                    type="text"
-                    id="buscarProducto"
-                    placeholder="Buscar producto"
-                >
-
-                <button
-                    id="btnEscanear"
-                    aria-label="Escanear código de barras"
-                    type="button"
-                >
-
-                    <svg
-                        class="icono-escaner"
-                        viewBox="0 0 48 48"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2.8"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        aria-hidden="true"
-                    >
-                        <path d="M16 5H9a4 4 0 0 0-4 4v7"/>
-                        <path d="M32 5h7a4 4 0 0 1 4 4v7"/>
-                        <path d="M5 32v7a4 4 0 0 0 4 4h7"/>
-                        <path d="M43 32v7a4 4 0 0 1-4 4h-7"/>
-                        <path d="M15 18v12"/>
-                        <path d="M20 18v12"/>
-                        <path d="M25 18v12"/>
-                        <path d="M29 18v12"/>
-                        <path d="M34 18v12"/>
-                        <path d="M12 24h24"/>
-                    </svg>
-
-                </button>
-
-            </section>
-
-
             <!-- PRODUCTOS -->
 
             <section class="productos">
@@ -147,17 +101,9 @@
                     type="button"
                 >
                     <span class="icono-producto">🛒</span>
-                    <span>Producto</span>
+                    <span>Productos</span>
                     <strong id="totalProductos">0</strong>
                 </button>
-
-                <!-- MENSAJE DE ESTADO -->
-
-                <p id="mensajeInventario">Cargando productos...</p>
-
-                <!-- AQUÍ SE MOSTRARÁN LOS PRODUCTOS DE FIREBASE -->
-
-                <div id="listaProductos" class="lista-productos"></div>
 
             </section>
 
@@ -210,7 +156,6 @@
                         required
                     >
 
-
                     <label for="codigoBarras">Código de barras</label>
 
                     <div class="campo-codigo">
@@ -232,7 +177,6 @@
 
                     </div>
 
-
                     <label for="precioCompra">Precio de compra</label>
 
                     <input
@@ -243,7 +187,6 @@
                         step="1"
                         required
                     >
-
 
                     <label for="precioVenta">Precio de venta</label>
 
@@ -256,7 +199,6 @@
                         required
                     >
 
-
                     <div class="resultado-ganancia">
 
                         <span>Porcentaje de ganancia</span>
@@ -264,7 +206,6 @@
                         <strong id="porcentajeGanancia">0%</strong>
 
                     </div>
-
 
                     <label for="cantidadProducto">Cantidad inicial</label>
 
@@ -276,7 +217,6 @@
                         step="1"
                         required
                     >
-
 
                     <button type="submit" id="btnGuardarProducto">
                         Guardar producto
@@ -293,7 +233,7 @@
     </div>
 
 
-    <script type="module" src="app.js?v=9"></script>
+    <script type="module" src="app.js?v=11"></script>
 
 </body>
 

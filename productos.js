@@ -1,3 +1,4 @@
+
 import { auth, database } from "./firebase-config.js";
 
 import {
@@ -35,26 +36,6 @@ const formatoDinero = new Intl.NumberFormat("es-CO", {
 btnVolver.addEventListener("click", () => {
     window.location.href = "index.html";
 });
-
-
-// CREAR DATO DEL PRODUCTO
-function crearDatoProducto(etiqueta, valor) {
-
-    const fila = document.createElement("div");
-    fila.className = "dato-producto";
-
-    const titulo = document.createElement("span");
-    titulo.textContent = etiqueta;
-
-    const contenido = document.createElement("strong");
-    contenido.textContent = valor;
-
-    fila.appendChild(titulo);
-    fila.appendChild(contenido);
-
-    return fila;
-
-}
 
 
 // MOSTRAR PRODUCTOS
@@ -99,6 +80,8 @@ function mostrarProductos() {
         const tarjeta = document.createElement("article");
         tarjeta.className = "producto-item";
 
+
+        // NOMBRE Y STOCK
         const encabezado = document.createElement("div");
         encabezado.className = "encabezado-producto";
 
@@ -115,6 +98,7 @@ function mostrarProductos() {
         encabezado.appendChild(cantidad);
 
 
+        // CÓDIGO DE BARRAS
         const codigo = document.createElement("p");
         codigo.className = "codigo-producto";
 
@@ -122,35 +106,22 @@ function mostrarProductos() {
             "Código: " + (producto.codigoBarras || "No disponible");
 
 
-        const detalles = document.createElement("div");
-        detalles.className = "detalles-producto";
+        // PRECIO DE VENTA
+        const precioVenta = document.createElement("div");
+        precioVenta.className = "detalles-producto";
 
-
-        detalles.appendChild(
-            crearDatoProducto(
-                "Precio de compra",
-                formatoDinero.format(Number(producto.precioCompra || 0))
-            )
+        const precio = document.createElement("strong");
+        precio.textContent = formatoDinero.format(
+            Number(producto.precioVenta || 0)
         );
 
-        detalles.appendChild(
-            crearDatoProducto(
-                "Precio de venta",
-                formatoDinero.format(Number(producto.precioVenta || 0))
-            )
-        );
-
-        detalles.appendChild(
-            crearDatoProducto(
-                "Ganancia",
-                Number(producto.porcentajeGanancia || 0).toFixed(2) + "%"
-            )
-        );
+        precioVenta.appendChild(precio);
 
 
+        // ARMAR TARJETA
         tarjeta.appendChild(encabezado);
         tarjeta.appendChild(codigo);
-        tarjeta.appendChild(detalles);
+        tarjeta.appendChild(precioVenta);
 
         listaProductos.appendChild(tarjeta);
 

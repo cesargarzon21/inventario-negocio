@@ -1,53 +1,52 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#15803d">
+    <meta name="theme-color" content="#ffffff">
     <title>Mi Inventario</title>
-    <link rel="stylesheet" href="styles.css?v=2">
+    <link rel="stylesheet" href="styles.css?v=3">
 </head>
 <body>
 
     <header class="encabezado">
-        <h1>Mi Inventario</h1>
-        <p>Control de productos y existencias</p>
+        <h1>Inventario</h1>
+        <div class="usuario">👤</div>
     </header>
 
     <main class="contenedor">
 
         <section class="busqueda">
-            <h2>Consultar productos</h2>
+            <span class="icono">⌕</span>
 
             <input
                 type="text"
                 id="buscarProducto"
-                placeholder="Nombre o código de barras"
+                placeholder="Buscar producto"
             >
 
-            <button id="btnBuscar">Buscar producto</button>
-        </section>
-
-        <section class="acciones">
-            <h2>Opciones</h2>
-
-            <button id="btnEscanear">
-                Escanear código de barras
-            </button>
-
-            <button id="btnRegistrar">
-                Registrar producto
-            </button>
-
-            <button id="btnInventario">
-                Ver inventario
+            <button id="btnEscanear" aria-label="Escanear código">
+                ▦
             </button>
         </section>
 
-        <section id="resultado">
-            <h2>Resultados</h2>
-            <p>Aquí aparecerán los productos consultados.</p>
+        <section class="productos">
+            <h2>Productos</h2>
+
+            <button class="tarjeta-producto" id="btnInventario">
+                <span class="icono-producto">🛒</span>
+                <span>Producto</span>
+                <strong id="totalProductos">0</strong>
+            </button>
+        </section>
+
+        <section class="agregar">
+            <h2>Añadir producto</h2>
+
+            <button class="tarjeta-agregar" id="btnRegistrar">
+                <span class="icono-agregar">📷</span>
+                <span>Añadir producto</span>
+            </button>
         </section>
 
     </main>

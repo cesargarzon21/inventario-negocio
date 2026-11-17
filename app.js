@@ -9,7 +9,8 @@ import {
 
 import {
     ref,
-    get
+    get,
+    runTransaction
 } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-database.js";
 
 // ELEMENTOS DEL LOGIN
@@ -26,7 +27,24 @@ const btnCerrarSesion = document.getElementById("btnCerrarSesion");
 const btnAdministrarUsuarios = document.getElementById("btnAdministrarUsuarios");
 const correoUsuario = document.getElementById("correoUsuario");
 
-// ABRIR ADMINISTRACIÓN DE USUARIOS
+// ELEMENTOS DEL REGISTRO
+const btnRegistrar = document.getElementById("btnRegistrar");
+const seccionRegistro = document.getElementById("seccionRegistro");
+const btnCerrarFormulario = document.getElementById("btnCerrarFormulario");
+const formProducto = document.getElementById("formProducto");
+
+const nombreProducto = document.getElementById("nombreProducto");
+const codigoBarras = document.getElementById("codigoBarras");
+const precioCompra = document.getElementById("precioCompra");
+const precioVenta = document.getElementById("precioVenta");
+const cantidadProducto = document.getElementById("cantidadProducto");
+
+const porcentajeGanancia = document.getElementById("porcentajeGanancia");
+const btnGuardarProducto = document.getElementById("btnGuardarProducto");
+const mensajeProducto = document.getElementById("mensajeProducto");
+const btnEscanearRegistro = document.getElementById("btnEscanearRegistro");
+
+// ADMINISTRACIÓN DE USUARIOS
 btnAdministrarUsuarios.addEventListener("click", () => {
     window.location.href = "usuarios.html";
 });
@@ -53,9 +71,7 @@ btnMenuUsuario.addEventListener("click", () => {
 
 // CERRAR MENÚ AL PULSAR FUERA
 document.addEventListener("click", (evento) => {
-    if (
-        !evento.target.closest(".menu-usuario")
-    ) {
+    if (!evento.target.closest(".menu-usuario")) {
         menuDesplegable.hidden = true;
         btnMenuUsuario.setAttribute("aria-expanded", "false");
     }
@@ -74,18 +90,189 @@ btnCerrarSesion.addEventListener("click", async () => {
 
 // COMPROBAR SI EL USUARIO ES ADMINISTRADOR
 async function comprobarAdministrador() {
+    if (!auth.currentUser) {
+        return false;
+    }
+
     try {
         await get(ref(database, "usuariosAutorizados"));
         return true;
     } catch (error) {
-        if (error.code === "PERMISSION_DENIED") {
-            return false;
+        if (error.code !== "PERMISSION_DENIED") {
+            console.error("Error comprobando permisos:", error);
         }
 
-        console.error("Error comprobando permisos:", error);
         return false;
     }
 }
+
+// ABRIR FORMULARIO
+btnRegistrar.addEventListener("click", () => {
+    seccionRegistro.hidden = false;
+    mensajeProducto.textContent = "";
+
+    seccionRegistro.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+});
+
+// CERRAR FORMULARIO
+btnCerrarFormulario.addEventListener("click", () => {
+    seccionRegistro.hidden = true;
+    formProducto.reset();
+    porcentajeGanancia.textContent = "0%";
+    mensajeProducto.textContent = "";
+});
+
+// CALCULAR PORCENTAJE DE GANANCIA
+function calcularGanancia() {
+    const compra = Number(precioCompra.value);
+    const venta = Number(precioVenta.value);
+
+    if (
+        precioCompra.value === "" ||
+        precioVenta.value === "" ||
+        compra <= 0
+    ) {
+        porcentajeGanancia.textContent = "0%";
+        return;
+    }
+
+    const ganancia = ((venta - compra) / compra) * 100;
+
+    porcentajeGanancia.textContent =
+        ganancia.toFixed(2) + "%";
+}
+
+precioCompra.addEventListener("input", calcularGanancia);
+precioVenta.addEventListener("input", calcularGanancia);
+
+// ESCÁNER DEL FORMULARIO
+btnEscanearRegistro.addEventListener("click", () => {
+    alert("El escáner de códigos se conectará en el siguiente paso. Por ahora puedes escribir el código manualmente.");
+});
+
+// GUARDAR PRODUCTO EN FIREBASE
+formProducto.addEventListener("submit", async (evento) => {
+    evento.preventDefault();
+
+    if (!auth.currentUser) {
+        mensajeProducto.textContent = "Debes iniciar sesión.";
+        return;
+    }
+
+    const esAdministrador = await comprobarAdministrador();
+
+    if (!esAdministrador) {
+        mensajeProducto.textContent =
+            "No tienes permisos para registrar productos.";
+        return;
+    }
+
+    const nombre = nombreProducto.value.trim();
+    const codigo = codigoBarras.value.trim();
+    const compra = Number(precioCompra.value);
+    const venta = Number(precioVenta.value);
+    const cantidad = Number(cantidadProducto.value);
+
+    if (!nombre || !codigo) {
+        mensajeProducto.textContent =
+            "Completa el nombre y el código de barras.";
+        return;
+    }
+
+    if (/[.#$\[\]/]/.test(codigo)) {
+        mensajeProducto.textContent =
+            "El código contiene caracteres no permitidos.";
+        return;
+    }
+
+    if (
+        !Number.isFinite(compra) ||
+        !Number.isFinite(venta) ||
+        compra <= 0 ||
+        venta <= 0
+    ) {
+        mensajeProducto.textContent =
+            "Los precios deben ser mayores que cero.";
+        return;
+    }
+
+    if (
+        !Number.isInteger(cantidad) ||
+        cantidad < 1
+    ) {
+        mensajeProducto.textContent =
+            "La cantidad debe ser un número entero mayor que cero.";
+        return;
+    }
+
+    const ganancia = ((venta - compra) / compra) * 100;
+
+    btnGuardarProducto.disabled = true;
+    mensajeProducto.textContent = "Guardando producto...";
+
+    try {
+        const productoRef = ref(database, "inventario/" + codigo);
+
+        const resultado = await runTransaction(
+            productoRef,
+            (productoActual) => {
+
+                // PRODUCTO NUEVO
+                if (productoActual === null) {
+                    return {
+                        nombre: nombre,
+                        codigoBarras: codigo,
+                        precioCompra: compra,
+                        precioVenta: venta,
+                        porcentajeGanancia: Number(ganancia.toFixed(2)),
+                        cantidad: cantidad
+                    };
+                }
+
+                // PRODUCTO EXISTENTE: SUMAR CANTIDAD
+                return {
+                    ...productoActual,
+                    cantidad: Number(productoActual.cantidad || 0) + cantidad
+                };
+            }
+        );
+
+        if (!resultado.committed) {
+            throw new Error("No se pudo completar el registro.");
+        }
+
+        if (resultado.snapshot.val().nombre === nombre &&
+            Number(resultado.snapshot.val().cantidad) === cantidad) {
+
+            mensajeProducto.textContent =
+                "¡Producto registrado correctamente!";
+
+        } else {
+            mensajeProducto.textContent =
+                "¡Cantidad actualizada correctamente!";
+        }
+
+        formProducto.reset();
+        porcentajeGanancia.textContent = "0%";
+
+    } catch (error) {
+        console.error("Error guardando producto:", error);
+
+        if (error.code === "PERMISSION_DENIED") {
+            mensajeProducto.textContent =
+                "Firebase rechazó la operación. No tienes permisos.";
+        } else {
+            mensajeProducto.textContent =
+                error.message || "No se pudo guardar el producto.";
+        }
+
+    } finally {
+        btnGuardarProducto.disabled = false;
+    }
+});
 
 // CONTROLAR SESIÓN
 onAuthStateChanged(auth, async (usuario) => {
@@ -98,15 +285,21 @@ onAuthStateChanged(auth, async (usuario) => {
         btnMenuUsuario.setAttribute("aria-expanded", "false");
 
         btnAdministrarUsuarios.hidden = true;
+        btnRegistrar.hidden = true;
+        seccionRegistro.hidden = true;
 
         const esAdministrador = await comprobarAdministrador();
 
         btnAdministrarUsuarios.hidden = !esAdministrador;
+        btnRegistrar.hidden = !esAdministrador;
 
     } else {
         mostrarLogin();
+
         menuDesplegable.hidden = true;
         btnAdministrarUsuarios.hidden = true;
+        btnRegistrar.hidden = true;
+        seccionRegistro.hidden = true;
     }
 });
 
@@ -140,4 +333,4 @@ formulario.addEventListener("submit", async (evento) => {
     }
 });
 
-console.log("Sistema de autenticación y menú iniciado");
+console.log("Sistema de autenticación y registro iniciado");

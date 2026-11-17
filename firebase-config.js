@@ -3,7 +3,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/13.4.0/firebas
 import { getAuth } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-auth.js";
 import { getDatabase } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-database.js";
 
-const firebaseConfig = {
+export const firebaseConfig = {
     apiKey: "AIzaSyC8jZZ8LxJ17q8qtYtj7r-631GPdhx1xmY",
     authDomain: "inventario-negocio-11766.firebaseapp.com",
     databaseURL: "https://inventario-negocio-11766-default-rtdb.firebaseio.com",

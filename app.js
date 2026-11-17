@@ -29,6 +29,7 @@ const correoUsuario = document.getElementById("correoUsuario");
 
 // ELEMENTOS DEL REGISTRO
 const btnRegistrar = document.getElementById("btnRegistrar");
+const seccionAgregar = btnRegistrar.closest(".agregar");
 const seccionRegistro = document.getElementById("seccionRegistro");
 const btnCerrarFormulario = document.getElementById("btnCerrarFormulario");
 const formProducto = document.getElementById("formProducto");

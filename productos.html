@@ -1,1 +1,82 @@
 
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#075b46">
+
+    <title>Productos | Inventario</title>
+
+    <link rel="stylesheet" href="productos.css?v=1">
+</head>
+
+<body>
+
+    <header class="encabezado">
+
+        <button id="btnVolver" type="button" aria-label="Volver">
+            ←
+        </button>
+
+        <h1>Productos</h1>
+
+    </header>
+
+    <main class="contenedor">
+
+        <!-- RESUMEN DEL INVENTARIO -->
+
+        <section class="tarjeta">
+
+            <div class="titulo-seccion">
+                <h2>Inventario general</h2>
+                <p>Consulta los productos registrados en tu negocio.</p>
+            </div>
+
+            <div class="resumen-productos">
+
+                <div>
+                    <span>Total de productos</span>
+                    <strong id="totalProductos">0</strong>
+                </div>
+
+                <span class="icono-resumen">📦</span>
+
+            </div>
+
+        </section>
+
+
+        <!-- LISTA DE PRODUCTOS -->
+
+        <section class="tarjeta">
+
+            <h2>Productos registrados</h2>
+
+            <div class="busqueda-productos">
+
+                <span>⌕</span>
+
+                <input
+                    type="text"
+                    id="buscarProducto"
+                    placeholder="Buscar por nombre o código"
+                >
+
+            </div>
+
+            <p id="mensajeProductos">Cargando productos...</p>
+
+            <div id="listaProductos"></div>
+
+        </section>
+
+    </main>
+
+    <script type="module" src="productos.js?v=1"></script>
+
+</body>
+
+</html>

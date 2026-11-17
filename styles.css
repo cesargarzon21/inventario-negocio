@@ -259,4 +259,11 @@ button:active {
         padding: 15px 18px;
         font-size: 19px;
     }
+
+    .icono-escaner {
+    width: 38px;
+    height: 38px;
+    display: block;
+    color: #279c83;
+    }
 }

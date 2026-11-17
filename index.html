@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -8,7 +9,7 @@
 
     <title>Mi Inventario</title>
 
-    <link rel="stylesheet" href="styles.css?v=8">
+    <link rel="stylesheet" href="styles.css?v=9">
 </head>
 
 <body>
@@ -150,6 +151,14 @@
                     <strong id="totalProductos">0</strong>
                 </button>
 
+                <!-- MENSAJE DE ESTADO -->
+
+                <p id="mensajeInventario">Cargando productos...</p>
+
+                <!-- AQUÍ SE MOSTRARÁN LOS PRODUCTOS DE FIREBASE -->
+
+                <div id="listaProductos" class="lista-productos"></div>
+
             </section>
 
 
@@ -284,7 +293,7 @@
     </div>
 
 
-    <script type="module" src="app.js?v=7"></script>
+    <script type="module" src="app.js?v=8"></script>
 
 </body>
 

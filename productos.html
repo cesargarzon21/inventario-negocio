@@ -9,14 +9,18 @@
 
     <title>Productos | Inventario</title>
 
-    <link rel="stylesheet" href="productos.css?v=2">
+    <link rel="stylesheet" href="productos.css?v=3">
 </head>
 
 <body>
 
     <header class="encabezado">
 
-        <button id="btnVolver" type="button" aria-label="Volver">
+        <button
+            id="btnVolver"
+            type="button"
+            aria-label="Volver"
+        >
             ←
         </button>
 
@@ -32,15 +36,21 @@
         <section class="tarjeta">
 
             <div class="titulo-seccion">
+
                 <h2>Inventario general</h2>
+
                 <p>Consulta los productos registrados en tu negocio.</p>
+
             </div>
 
             <div class="resumen-productos">
 
                 <div>
+
                     <span>Total de productos</span>
+
                     <strong id="totalProductos">0</strong>
+
                 </div>
 
                 <span class="icono-resumen">📦</span>
@@ -64,6 +74,7 @@
                     type="text"
                     id="buscarProducto"
                     placeholder="Buscar por nombre o código"
+                    autocomplete="off"
                 >
 
             </div>
@@ -95,6 +106,8 @@
 
                 <div class="acciones-modal">
 
+                    <!-- ELIMINAR -->
+
                     <button
                         type="button"
                         id="btnEliminarProducto"
@@ -102,6 +115,7 @@
                         aria-label="Eliminar producto"
                         title="Eliminar producto"
                     >
+
                         <svg
                             viewBox="0 0 24 24"
                             width="22"
@@ -118,8 +132,11 @@
                             <path d="M10 11v5"></path>
                             <path d="M14 11v5"></path>
                         </svg>
+
                     </button>
 
+
+                    <!-- DUPLICAR -->
 
                     <button
                         type="button"
@@ -128,6 +145,7 @@
                         aria-label="Duplicar producto"
                         title="Duplicar producto"
                     >
+
                         <svg
                             viewBox="0 0 24 24"
                             width="22"
@@ -138,11 +156,21 @@
                             stroke-linecap="round"
                             stroke-linejoin="round"
                         >
-                            <rect x="8" y="8" width="13" height="13" rx="2"></rect>
+                            <rect
+                                x="8"
+                                y="8"
+                                width="13"
+                                height="13"
+                                rx="2"
+                            ></rect>
+
                             <path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"></path>
                         </svg>
+
                     </button>
 
+
+                    <!-- CERRAR -->
 
                     <button
                         type="button"
@@ -164,6 +192,9 @@
 
                 <div class="campos-modal">
 
+
+                    <!-- NOMBRE -->
+
                     <div class="campo-modal">
 
                         <label for="editarNombre">
@@ -179,20 +210,79 @@
                     </div>
 
 
+                    <!-- CÓDIGO DE BARRAS Y ESCÁNER -->
+
                     <div class="campo-modal">
 
                         <label for="editarCodigo">
                             Código de barras
                         </label>
 
-                        <input
-                            type="text"
-                            id="editarCodigo"
-                            required
-                        >
+                        <div class="campo-codigo">
+
+                            <input
+                                type="text"
+                                id="editarCodigo"
+                                required
+                                autocomplete="off"
+                            >
+
+                            <button
+                                type="button"
+                                id="btnEscanearCodigo"
+                                class="btn-escanear"
+                                aria-label="Escanear código de barras"
+                                title="Escanear código de barras"
+                            >
+
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    width="24"
+                                    height="24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <path d="M4 7V5a1 1 0 0 1 1-1h2"></path>
+                                    <path d="M17 4h2a1 1 0 0 1 1 1v2"></path>
+                                    <path d="M20 17v2a1 1 0 0 1-1 1h-2"></path>
+                                    <path d="M7 20H5a1 1 0 0 1-1-1v-2"></path>
+                                    <path d="M4 12h16"></path>
+                                    <path d="M8 9v6"></path>
+                                    <path d="M12 9v6"></path>
+                                    <path d="M16 9v6"></path>
+                                </svg>
+
+                            </button>
+
+                        </div>
+
+
+                        <!-- PANEL DE LA CÁMARA -->
+
+                        <div id="panelEscaner" hidden>
+
+                            <div id="lectorCamara"></div>
+
+                            <p id="mensajeEscaner">
+                                Apunta la cámara al código de barras.
+                            </p>
+
+                            <button
+                                type="button"
+                                id="btnCerrarEscaner"
+                            >
+                                Cancelar escaneo
+                            </button>
+
+                        </div>
 
                     </div>
 
+
+                    <!-- PRECIO DE COMPRA -->
 
                     <div class="campo-modal">
 
@@ -211,6 +301,8 @@
                     </div>
 
 
+                    <!-- PRECIO DE VENTA -->
+
                     <div class="campo-modal">
 
                         <label for="editarPrecioVenta">
@@ -227,6 +319,8 @@
 
                     </div>
 
+
+                    <!-- CANTIDAD -->
 
                     <div class="campo-modal">
 
@@ -267,7 +361,17 @@
     </div>
 
 
-    <script type="module" src="productos.js?v=3"></script>
+    <!-- LIBRERÍA DEL ESCÁNER DE CÓDIGOS DE BARRAS -->
+
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+
+    <!-- JAVASCRIPT DE PRODUCTOS -->
+
+    <script
+        type="module"
+        src="productos.js?v=4"
+    ></script>
 
 </body>
 

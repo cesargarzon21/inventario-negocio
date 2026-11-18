@@ -1,3 +1,4 @@
+
 import { auth, database } from "./firebase-config.js";
 
 import {
@@ -14,7 +15,10 @@ import {
 } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-database.js";
 
 
+// ==========================================
 // ELEMENTOS DEL LOGIN
+// ==========================================
+
 const pantallaLogin = document.getElementById("pantallaLogin");
 const aplicacion = document.getElementById("aplicacion");
 const formulario = document.getElementById("formLogin");
@@ -22,7 +26,10 @@ const mensaje = document.getElementById("mensajeLogin");
 const botonLogin = document.getElementById("btnLogin");
 
 
+// ==========================================
 // ELEMENTOS DEL MENÚ
+// ==========================================
+
 const btnMenuUsuario = document.getElementById("btnMenuUsuario");
 const menuDesplegable = document.getElementById("menuDesplegable");
 const btnCerrarSesion = document.getElementById("btnCerrarSesion");
@@ -30,12 +37,18 @@ const btnAdministrarUsuarios = document.getElementById("btnAdministrarUsuarios")
 const correoUsuario = document.getElementById("correoUsuario");
 
 
+// ==========================================
 // ELEMENTOS DE PRODUCTOS
+// ==========================================
+
 const btnInventario = document.getElementById("btnInventario");
 const totalProductos = document.getElementById("totalProductos");
 
 
+// ==========================================
 // ELEMENTOS DEL REGISTRO
+// ==========================================
+
 const btnRegistrar = document.getElementById("btnRegistrar");
 const seccionAgregar = btnRegistrar.closest(".agregar");
 const seccionRegistro = document.getElementById("seccionRegistro");
@@ -54,47 +67,141 @@ const mensajeProducto = document.getElementById("mensajeProducto");
 const btnEscanearRegistro = document.getElementById("btnEscanearRegistro");
 
 
-// ELEMENTOS DEL ESCÁNER
+// ==========================================
+// ELEMENTOS DEL ESCÁNER DE REGISTRO
+// ==========================================
+
 const panelEscanerRegistro = document.getElementById("panelEscanerRegistro");
 const lectorCamaraRegistro = document.getElementById("lectorCamaraRegistro");
 const mensajeEscanerRegistro = document.getElementById("mensajeEscanerRegistro");
 const btnCerrarEscanerRegistro = document.getElementById("btnCerrarEscanerRegistro");
 
 
-// VARIABLES
+// ==========================================
+// ELEMENTOS DEL MÓDULO DE VENTAS
+// ==========================================
+
+const btnAbrirVentas = document.getElementById("btnAbrirVentas");
+const modalVentas = document.getElementById("modalVentas");
+const btnCerrarVentas = document.getElementById("btnCerrarVentas");
+
+const buscarVenta = document.getElementById("buscarVenta");
+const btnEscanearVenta = document.getElementById("btnEscanearVenta");
+
+const panelEscanerVenta = document.getElementById("panelEscanerVenta");
+const lectorCamaraVenta = document.getElementById("lectorCamaraVenta");
+const mensajeEscanerVenta = document.getElementById("mensajeEscanerVenta");
+const btnCerrarEscanerVenta = document.getElementById("btnCerrarEscanerVenta");
+
+const resultadosVenta = document.getElementById("resultadosVenta");
+const mensajeBusquedaVenta = document.getElementById("mensajeBusquedaVenta");
+
+const listaCarrito = document.getElementById("listaCarrito");
+const totalVenta = document.getElementById("totalVenta");
+const btnVender = document.getElementById("btnVender");
+const mensajeVenta = document.getElementById("mensajeVenta");
+
+const btnMostrarHistorial = document.getElementById("btnMostrarHistorial");
+const contenidoHistorial = document.getElementById("contenidoHistorial");
+const listaHistorial = document.getElementById("listaHistorial");
+const mensajeHistorial = document.getElementById("mensajeHistorial");
+
+
+// ==========================================
+// VARIABLES GENERALES
+// ==========================================
+
 let detenerInventario = null;
+
+let inventarioActual = {};
+
+let esAdministrador = false;
+
+
+// ==========================================
+// VARIABLES DEL ESCÁNER DE REGISTRO
+// ==========================================
+
 let lectorCodigoRegistro = null;
 let escanerRegistroActivo = false;
-let procesandoCodigo = false;
+let procesandoCodigoRegistro = false;
 
 
+// ==========================================
+// VARIABLES DEL ESCÁNER DE VENTAS
+// ==========================================
+
+let lectorCodigoVenta = null;
+let escanerVentaActivo = false;
+let procesandoCodigoVenta = false;
+
+
+// ==========================================
+// VARIABLES DEL CARRITO
+// ==========================================
+
+// Cada producto se identifica por su código de barras.
+
+const carrito = {};
+
+
+// ==========================================
+// FORMATO DE DINERO
+// ==========================================
+
+const formatoDinero = new Intl.NumberFormat("es-CO", {
+    style: "currency",
+    currency: "COP",
+    maximumFractionDigits: 0
+});
+
+function dinero(valor) {
+    return formatoDinero.format(Number(valor) || 0);
+}
+
+
+// ==========================================
 // ADMINISTRAR USUARIOS
+// ==========================================
+
 btnAdministrarUsuarios.addEventListener("click", () => {
     window.location.href = "usuarios.html";
 });
 
 
+// ==========================================
 // ABRIR PÁGINA DE PRODUCTOS
+// ==========================================
+
 btnInventario.addEventListener("click", () => {
     window.location.href = "productos.html";
 });
 
 
+// ==========================================
 // MOSTRAR LOGIN
+// ==========================================
+
 function mostrarLogin() {
     pantallaLogin.hidden = false;
     aplicacion.hidden = true;
 }
 
 
+// ==========================================
 // MOSTRAR INVENTARIO
+// ==========================================
+
 function mostrarInventario() {
     pantallaLogin.hidden = true;
     aplicacion.hidden = false;
 }
 
 
+// ==========================================
 // ABRIR Y CERRAR MENÚ
+// ==========================================
+
 btnMenuUsuario.addEventListener("click", () => {
 
     const estaAbierto = !menuDesplegable.hidden;
@@ -109,7 +216,6 @@ btnMenuUsuario.addEventListener("click", () => {
 });
 
 
-// CERRAR MENÚ AL PULSAR FUERA
 document.addEventListener("click", (evento) => {
 
     if (!evento.target.closest(".menu-usuario")) {
@@ -126,26 +232,10 @@ document.addEventListener("click", (evento) => {
 });
 
 
-// CERRAR SESIÓN
-btnCerrarSesion.addEventListener("click", async () => {
+// ==========================================
+// COMPROBAR SI ES ADMINISTRADOR
+// ==========================================
 
-    try {
-
-        await detenerEscanerRegistro();
-        await signOut(auth);
-        menuDesplegable.hidden = true;
-
-    } catch (error) {
-
-        console.error("Error al cerrar sesión:", error);
-        alert("No se pudo cerrar la sesión.");
-
-    }
-
-});
-
-
-// COMPROBAR SI EL USUARIO ES ADMINISTRADOR
 async function comprobarAdministrador() {
 
     if (!auth.currentUser) {
@@ -155,6 +245,7 @@ async function comprobarAdministrador() {
     try {
 
         await get(ref(database, "usuariosAutorizados"));
+
         return true;
 
     } catch (error) {
@@ -170,63 +261,10 @@ async function comprobarAdministrador() {
 }
 
 
-// ABRIR FORMULARIO
-btnRegistrar.addEventListener("click", () => {
+// ==========================================
+// DETENER ESCÁNER DE REGISTRO
+// ==========================================
 
-    seccionRegistro.hidden = false;
-    mensajeProducto.textContent = "";
-
-    seccionRegistro.scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-    });
-
-});
-
-
-// CERRAR FORMULARIO
-btnCerrarFormulario.addEventListener("click", async () => {
-
-    await detenerEscanerRegistro();
-
-    seccionRegistro.hidden = true;
-    formProducto.reset();
-
-    porcentajeGanancia.textContent = "0%";
-    mensajeProducto.textContent = "";
-
-});
-
-
-// CALCULAR PORCENTAJE DE GANANCIA
-function calcularGanancia() {
-
-    const compra = Number(precioCompra.value);
-    const venta = Number(precioVenta.value);
-
-    if (
-        precioCompra.value === "" ||
-        precioVenta.value === "" ||
-        compra <= 0
-    ) {
-
-        porcentajeGanancia.textContent = "0%";
-        return;
-
-    }
-
-    const ganancia = ((venta - compra) / compra) * 100;
-
-    porcentajeGanancia.textContent =
-        ganancia.toFixed(2) + "%";
-
-}
-
-precioCompra.addEventListener("input", calcularGanancia);
-precioVenta.addEventListener("input", calcularGanancia);
-
-
-// DETENER ESCÁNER
 async function detenerEscanerRegistro() {
 
     if (lectorCodigoRegistro) {
@@ -241,7 +279,7 @@ async function detenerEscanerRegistro() {
 
         } catch (error) {
 
-            console.error("Error deteniendo escáner:", error);
+            console.error("Error deteniendo escáner de registro:", error);
 
         }
 
@@ -249,14 +287,17 @@ async function detenerEscanerRegistro() {
 
     lectorCodigoRegistro = null;
     escanerRegistroActivo = false;
-    procesandoCodigo = false;
+    procesandoCodigoRegistro = false;
 
     panelEscanerRegistro.hidden = true;
 
 }
 
 
-// INICIAR ESCÁNER
+// ==========================================
+// INICIAR ESCÁNER DE REGISTRO
+// ==========================================
+
 async function iniciarEscanerRegistro() {
 
     if (escanerRegistroActivo || lectorCodigoRegistro) {
@@ -269,9 +310,10 @@ async function iniciarEscanerRegistro() {
     ) {
 
         mensajeEscanerRegistro.textContent =
-            "No se pudo cargar el escáner. Recarga la página e inténtalo nuevamente.";
+            "No se pudo cargar el escáner. Recarga la página.";
 
         panelEscanerRegistro.hidden = false;
+
         return;
 
     }
@@ -281,20 +323,11 @@ async function iniciarEscanerRegistro() {
     mensajeEscanerRegistro.textContent =
         "Solicitando acceso a la cámara...";
 
-    procesandoCodigo = false;
+    procesandoCodigoRegistro = false;
 
     try {
 
-        const formatos = [
-            Html5QrcodeSupportedFormats.EAN_13,
-            Html5QrcodeSupportedFormats.EAN_8,
-            Html5QrcodeSupportedFormats.UPC_A,
-            Html5QrcodeSupportedFormats.UPC_E,
-            Html5QrcodeSupportedFormats.CODE_128,
-            Html5QrcodeSupportedFormats.CODE_39,
-            Html5QrcodeSupportedFormats.ITF,
-            Html5QrcodeSupportedFormats.CODABAR
-        ];
+        const formatos = obtenerFormatosEscaner();
 
         lectorCodigoRegistro = new Html5Qrcode(
             "lectorCamaraRegistro",
@@ -318,11 +351,11 @@ async function iniciarEscanerRegistro() {
 
             async (codigoLeido) => {
 
-                if (procesandoCodigo) {
+                if (procesandoCodigoRegistro) {
                     return;
                 }
 
-                procesandoCodigo = true;
+                procesandoCodigoRegistro = true;
 
                 codigoBarras.value = codigoLeido;
 
@@ -335,94 +368,148 @@ async function iniciarEscanerRegistro() {
 
             },
 
-            () => {
-                // No mostrar errores por cada fotograma sin lectura.
-            }
+            () => {}
 
         );
 
         escanerRegistroActivo = true;
 
         mensajeEscanerRegistro.textContent =
-            "Apunta la cámara al código de barras del producto.";
+            "Apunta la cámara al código de barras.";
 
     } catch (error) {
 
-        console.error("Error iniciando escáner:", error);
+        console.error("Error iniciando escáner de registro:", error);
 
         await detenerEscanerRegistro();
 
         panelEscanerRegistro.hidden = false;
 
         mensajeEscanerRegistro.textContent =
-            "No se pudo iniciar la cámara. Comprueba los permisos del navegador e inténtalo nuevamente.";
+            "No se pudo iniciar la cámara. Comprueba los permisos.";
 
     }
 
 }
 
 
-// BOTÓN PARA ESCANEAR
-btnEscanearRegistro.addEventListener("click", iniciarEscanerRegistro);
+function obtenerFormatosEscaner() {
 
-
-// BOTÓN PARA CANCELAR ESCANEO
-btnCerrarEscanerRegistro.addEventListener("click", detenerEscanerRegistro);
-
-
-// ACTUALIZAR CONTADOR DE PRODUCTOS
-function escucharInventario() {
-
-    if (detenerInventario) {
-        detenerInventario();
-        detenerInventario = null;
-    }
-
-    totalProductos.textContent = "…";
-
-    const inventarioRef = ref(database, "inventario");
-
-    detenerInventario = onValue(
-
-        inventarioRef,
-
-        (snapshot) => {
-
-            const datos = snapshot.val();
-
-            const cantidad = datos
-                ? Object.keys(datos).length
-                : 0;
-
-            totalProductos.textContent = cantidad;
-
-        },
-
-        (error) => {
-
-            console.error("Error cargando inventario:", error);
-            totalProductos.textContent = "—";
-
-        }
-
-    );
+    return [
+        Html5QrcodeSupportedFormats.EAN_13,
+        Html5QrcodeSupportedFormats.EAN_8,
+        Html5QrcodeSupportedFormats.UPC_A,
+        Html5QrcodeSupportedFormats.UPC_E,
+        Html5QrcodeSupportedFormats.CODE_128,
+        Html5QrcodeSupportedFormats.CODE_39,
+        Html5QrcodeSupportedFormats.ITF,
+        Html5QrcodeSupportedFormats.CODABAR
+    ];
 
 }
 
 
+btnEscanearRegistro.addEventListener(
+    "click",
+    iniciarEscanerRegistro
+);
+
+btnCerrarEscanerRegistro.addEventListener(
+    "click",
+    detenerEscanerRegistro
+);
+
+
+// ==========================================
+// ABRIR FORMULARIO DE REGISTRO
+// ==========================================
+
+btnRegistrar.addEventListener("click", () => {
+
+    seccionRegistro.hidden = false;
+
+    mensajeProducto.textContent = "";
+
+    seccionRegistro.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+
+});
+
+
+// ==========================================
+// CERRAR FORMULARIO DE REGISTRO
+// ==========================================
+
+btnCerrarFormulario.addEventListener("click", async () => {
+
+    await detenerEscanerRegistro();
+
+    seccionRegistro.hidden = true;
+
+    formProducto.reset();
+
+    porcentajeGanancia.textContent = "0%";
+
+    mensajeProducto.textContent = "";
+
+});
+
+
+// ==========================================
+// CALCULAR PORCENTAJE DE GANANCIA
+// ==========================================
+
+function calcularGanancia() {
+
+    const compra = Number(precioCompra.value);
+    const venta = Number(precioVenta.value);
+
+    if (
+        precioCompra.value === "" ||
+        precioVenta.value === "" ||
+        compra <= 0
+    ) {
+
+        porcentajeGanancia.textContent = "0%";
+
+        return;
+
+    }
+
+    const ganancia = ((venta - compra) / compra) * 100;
+
+    porcentajeGanancia.textContent =
+        ganancia.toFixed(2) + "%";
+
+}
+
+
+precioCompra.addEventListener("input", calcularGanancia);
+precioVenta.addEventListener("input", calcularGanancia);
+
+
+// ==========================================
 // GUARDAR PRODUCTO EN FIREBASE
+// ==========================================
+
 formProducto.addEventListener("submit", async (evento) => {
 
     evento.preventDefault();
 
     if (!auth.currentUser) {
-        mensajeProducto.textContent = "Debes iniciar sesión.";
+
+        mensajeProducto.textContent =
+            "Debes iniciar sesión.";
+
         return;
+
     }
 
-    const esAdministrador = await comprobarAdministrador();
+    const administrador = await comprobarAdministrador();
 
-    if (!esAdministrador) {
+    if (!administrador) {
 
         mensajeProducto.textContent =
             "No tienes permisos para registrar productos.";
@@ -433,6 +520,7 @@ formProducto.addEventListener("submit", async (evento) => {
 
     const nombre = nombreProducto.value.trim();
     const codigo = codigoBarras.value.trim();
+
     const compra = Number(precioCompra.value);
     const venta = Number(precioVenta.value);
     const cantidad = Number(cantidadProducto.value);
@@ -475,7 +563,7 @@ formProducto.addEventListener("submit", async (evento) => {
     ) {
 
         mensajeProducto.textContent =
-            "La cantidad debe ser un número entero mayor que cero.";
+            "La cantidad debe ser un entero mayor que cero.";
 
         return;
 
@@ -484,6 +572,7 @@ formProducto.addEventListener("submit", async (evento) => {
     const ganancia = ((venta - compra) / compra) * 100;
 
     btnGuardarProducto.disabled = true;
+
     mensajeProducto.textContent = "Guardando producto...";
 
     try {
@@ -527,9 +616,10 @@ formProducto.addEventListener("submit", async (evento) => {
         }
 
         mensajeProducto.textContent =
-            "¡Producto guardado! El inventario se actualizará automáticamente.";
+            "¡Producto guardado correctamente!";
 
         formProducto.reset();
+
         porcentajeGanancia.textContent = "0%";
 
     } catch (error) {
@@ -557,17 +647,782 @@ formProducto.addEventListener("submit", async (evento) => {
 });
 
 
-// CONTROLAR SESIÓN
-onAuthStateChanged(auth, async (usuario) => {
+// ==========================================
+// ESCUCHAR INVENTARIO
+// ==========================================
+
+function escucharInventario() {
 
     if (detenerInventario) {
+
         detenerInventario();
+
         detenerInventario = null;
+
+    }
+
+    totalProductos.textContent = "…";
+
+    const inventarioRef = ref(database, "inventario");
+
+    detenerInventario = onValue(
+
+        inventarioRef,
+
+        (snapshot) => {
+
+            const datos = snapshot.val();
+
+            inventarioActual = datos || {};
+
+            totalProductos.textContent =
+                Object.keys(inventarioActual).length;
+
+            // Actualizar los resultados si la ventana está abierta.
+
+            if (!modalVentas.hidden) {
+                buscarProductosVenta();
+            }
+
+            // Actualizar el carrito con las existencias actuales.
+
+            renderizarCarrito();
+
+        },
+
+        (error) => {
+
+            console.error("Error cargando inventario:", error);
+
+            totalProductos.textContent = "—";
+
+            inventarioActual = {};
+
+        }
+
+    );
+
+}
+
+
+// ==========================================
+// ABRIR VENTANA DE VENTAS
+// ==========================================
+
+btnAbrirVentas.addEventListener("click", async () => {
+
+    if (!auth.currentUser) {
+        return;
     }
 
     await detenerEscanerRegistro();
 
+    seccionRegistro.hidden = true;
+
+    modalVentas.hidden = false;
+
+    buscarVenta.focus();
+
+    mensajeVenta.textContent =
+        "La confirmación de ventas estará disponible después de configurar los permisos seguros.";
+
+    btnVender.disabled = true;
+
+    buscarProductosVenta();
+
+    renderizarCarrito();
+
+});
+
+
+// ==========================================
+// CERRAR VENTANA DE VENTAS
+// ==========================================
+
+async function cerrarVentanaVentas() {
+
+    await detenerEscanerVenta();
+
+    modalVentas.hidden = true;
+
+    resultadosVenta.hidden = true;
+
+    buscarVenta.value = "";
+
+    mensajeBusquedaVenta.textContent = "";
+
+}
+
+
+btnCerrarVentas.addEventListener(
+    "click",
+    cerrarVentanaVentas
+);
+
+
+modalVentas.addEventListener("click", (evento) => {
+
+    if (evento.target === modalVentas) {
+        cerrarVentanaVentas();
+    }
+
+});
+
+
+// ==========================================
+// BUSCAR PRODUCTOS PARA VENDER
+// ==========================================
+
+buscarVenta.addEventListener("input", () => {
+
+    buscarProductosVenta();
+
+});
+
+
+function buscarProductosVenta() {
+
+    const busqueda = buscarVenta.value
+        .trim()
+        .toLowerCase();
+
+    resultadosVenta.innerHTML = "";
+
+    if (!busqueda) {
+
+        resultadosVenta.hidden = true;
+
+        mensajeBusquedaVenta.textContent = "";
+
+        return;
+
+    }
+
+    const productos = Object.entries(inventarioActual)
+        .filter(([codigo, producto]) => {
+
+            const nombre = String(producto.nombre || "").toLowerCase();
+
+            const codigoProducto = String(
+                producto.codigoBarras || codigo
+            ).toLowerCase();
+
+            return (
+                nombre.includes(busqueda) ||
+                codigo.toLowerCase().includes(busqueda) ||
+                codigoProducto.includes(busqueda)
+            );
+
+        })
+        .slice(0, 30);
+
+    resultadosVenta.hidden = false;
+
+    if (productos.length === 0) {
+
+        mensajeBusquedaVenta.textContent =
+            "No se encontraron productos.";
+
+        return;
+
+    }
+
+    mensajeBusquedaVenta.textContent =
+        productos.length + " producto(s) encontrado(s).";
+
+    productos.forEach(([codigo, producto]) => {
+
+        const tarjeta = document.createElement("div");
+
+        tarjeta.className = "resultado-producto-venta";
+
+        const datos = document.createElement("div");
+
+        datos.className = "datos-resultado-venta";
+
+        const nombre = document.createElement("strong");
+
+        nombre.textContent = producto.nombre || "Producto sin nombre";
+
+        const detalle = document.createElement("span");
+
+        detalle.textContent =
+            dinero(producto.precioVenta) +
+            " · Existencias: " +
+            Number(producto.cantidad || 0);
+
+        const boton = document.createElement("button");
+
+        boton.type = "button";
+
+        boton.textContent = "Agregar";
+
+        boton.dataset.codigo = codigo;
+
+        boton.className = "btn-agregar-venta";
+
+        boton.disabled =
+            !Number.isFinite(Number(producto.cantidad)) ||
+            Number(producto.cantidad) <= 0;
+
+        datos.append(nombre, detalle);
+
+        tarjeta.append(datos, boton);
+
+        resultadosVenta.appendChild(tarjeta);
+
+    });
+
+}
+
+
+// ==========================================
+// AGREGAR PRODUCTOS AL CARRITO
+// ==========================================
+
+resultadosVenta.addEventListener("click", (evento) => {
+
+    const boton = evento.target.closest(".btn-agregar-venta");
+
+    if (!boton) {
+        return;
+    }
+
+    agregarAlCarrito(boton.dataset.codigo);
+
+});
+
+
+function agregarAlCarrito(codigo) {
+
+    const producto = inventarioActual[codigo];
+
+    if (!producto) {
+
+        mensajeBusquedaVenta.textContent =
+            "El producto ya no está disponible.";
+
+        return;
+
+    }
+
+    const stock = Number(producto.cantidad || 0);
+
+    if (!Number.isInteger(stock) || stock <= 0) {
+
+        mensajeBusquedaVenta.textContent =
+            "Este producto no tiene existencias.";
+
+        return;
+
+    }
+
+    const cantidadActual = carrito[codigo]
+        ? carrito[codigo].cantidad
+        : 0;
+
+    if (cantidadActual + 1 > stock) {
+
+        mensajeBusquedaVenta.textContent =
+            "No hay suficientes existencias.";
+
+        return;
+
+    }
+
+    carrito[codigo] = {
+        cantidad: cantidadActual + 1
+    };
+
+    mensajeBusquedaVenta.textContent =
+        "Producto agregado al carrito.";
+
+    renderizarCarrito();
+
+}
+
+
+// ==========================================
+// RENDERIZAR CARRITO
+// ==========================================
+
+function renderizarCarrito() {
+
+    listaCarrito.innerHTML = "";
+
+    let total = 0;
+
+    const codigos = Object.keys(carrito);
+
+    if (codigos.length === 0) {
+
+        const vacio = document.createElement("p");
+
+        vacio.className = "carrito-vacio";
+
+        vacio.textContent =
+            "Todavía no has agregado productos.";
+
+        listaCarrito.appendChild(vacio);
+
+    }
+
+    codigos.forEach((codigo) => {
+
+        const producto = inventarioActual[codigo];
+
+        if (!producto) {
+            return;
+        }
+
+        const cantidad = carrito[codigo].cantidad;
+
+        const stock = Number(producto.cantidad || 0);
+
+        const precio = Number(producto.precioVenta || 0);
+
+        const subtotal = precio * cantidad;
+
+        total += subtotal;
+
+        const tarjeta = document.createElement("div");
+
+        tarjeta.className = "item-carrito";
+
+        const datos = document.createElement("div");
+
+        datos.className = "datos-item-carrito";
+
+        const nombre = document.createElement("strong");
+
+        nombre.textContent = producto.nombre || "Producto";
+
+        const subtotalTexto = document.createElement("span");
+
+        subtotalTexto.textContent = dinero(subtotal);
+
+        datos.append(nombre, subtotalTexto);
+
+
+        const controles = document.createElement("div");
+
+        controles.className = "controles-cantidad";
+
+
+        const botonMenos = document.createElement("button");
+
+        botonMenos.type = "button";
+
+        botonMenos.textContent = "−";
+
+        botonMenos.dataset.accion = "restar";
+
+        botonMenos.dataset.codigo = codigo;
+
+
+        const inputCantidad = document.createElement("input");
+
+        inputCantidad.type = "number";
+
+        inputCantidad.min = "1";
+
+        inputCantidad.max = String(stock);
+
+        inputCantidad.step = "1";
+
+        inputCantidad.value = String(cantidad);
+
+        inputCantidad.dataset.accion = "cantidad";
+
+        inputCantidad.dataset.codigo = codigo;
+
+
+        const botonMas = document.createElement("button");
+
+        botonMas.type = "button";
+
+        botonMas.textContent = "+";
+
+        botonMas.dataset.accion = "sumar";
+
+        botonMas.dataset.codigo = codigo;
+
+        botonMas.disabled = cantidad >= stock;
+
+
+        const botonEliminar = document.createElement("button");
+
+        botonEliminar.type = "button";
+
+        botonEliminar.textContent = "✕";
+
+        botonEliminar.className = "btn-eliminar-carrito";
+
+        botonEliminar.dataset.accion = "eliminar";
+
+        botonEliminar.dataset.codigo = codigo;
+
+
+        controles.append(
+            botonMenos,
+            inputCantidad,
+            botonMas,
+            botonEliminar
+        );
+
+        tarjeta.append(datos, controles);
+
+        listaCarrito.appendChild(tarjeta);
+
+    });
+
+    totalVenta.textContent = dinero(total);
+
+    // La confirmación permanece desactivada en esta etapa.
+
+    btnVender.disabled = true;
+
+}
+
+
+// ==========================================
+// MODIFICAR CANTIDADES DEL CARRITO
+// ==========================================
+
+listaCarrito.addEventListener("click", (evento) => {
+
+    const boton = evento.target.closest("button");
+
+    if (!boton) {
+        return;
+    }
+
+    const codigo = boton.dataset.codigo;
+
+    const accion = boton.dataset.accion;
+
+    if (!codigo || !carrito[codigo]) {
+        return;
+    }
+
+    const producto = inventarioActual[codigo];
+
+    if (!producto) {
+        return;
+    }
+
+    const stock = Number(producto.cantidad || 0);
+
+    if (accion === "sumar") {
+
+        if (carrito[codigo].cantidad < stock) {
+            carrito[codigo].cantidad++;
+        }
+
+    }
+
+    if (accion === "restar") {
+
+        carrito[codigo].cantidad--;
+
+        if (carrito[codigo].cantidad <= 0) {
+            delete carrito[codigo];
+        }
+
+    }
+
+    if (accion === "eliminar") {
+
+        delete carrito[codigo];
+
+    }
+
+    renderizarCarrito();
+
+});
+
+
+listaCarrito.addEventListener("change", (evento) => {
+
+    const input = evento.target;
+
+    if (input.dataset.accion !== "cantidad") {
+        return;
+    }
+
+    const codigo = input.dataset.codigo;
+
+    if (!carrito[codigo]) {
+        return;
+    }
+
+    const producto = inventarioActual[codigo];
+
+    if (!producto) {
+        return;
+    }
+
+    const cantidad = Number(input.value);
+
+    const stock = Number(producto.cantidad || 0);
+
+    if (
+        !Number.isInteger(cantidad) ||
+        cantidad < 1 ||
+        cantidad > stock
+    ) {
+
+        mensajeVenta.textContent =
+            "La cantidad debe estar entre 1 y las existencias disponibles.";
+
+        renderizarCarrito();
+
+        return;
+
+    }
+
+    carrito[codigo].cantidad = cantidad;
+
+    mensajeVenta.textContent = "";
+
+    renderizarCarrito();
+
+});
+
+
+// ==========================================
+// DETENER ESCÁNER DE VENTAS
+// ==========================================
+
+async function detenerEscanerVenta() {
+
+    if (lectorCodigoVenta) {
+
+        try {
+
+            if (escanerVentaActivo) {
+                await lectorCodigoVenta.stop();
+            }
+
+            await lectorCodigoVenta.clear();
+
+        } catch (error) {
+
+            console.error("Error deteniendo escáner de ventas:", error);
+
+        }
+
+    }
+
+    lectorCodigoVenta = null;
+
+    escanerVentaActivo = false;
+
+    procesandoCodigoVenta = false;
+
+    panelEscanerVenta.hidden = true;
+
+}
+
+
+// ==========================================
+// INICIAR ESCÁNER DE VENTAS
+// ==========================================
+
+btnEscanearVenta.addEventListener(
+    "click",
+    iniciarEscanerVenta
+);
+
+
+btnCerrarEscanerVenta.addEventListener(
+    "click",
+    detenerEscanerVenta
+);
+
+
+async function iniciarEscanerVenta() {
+
+    if (escanerVentaActivo || lectorCodigoVenta) {
+        return;
+    }
+
+    await detenerEscanerRegistro();
+
+    if (
+        typeof Html5Qrcode === "undefined" ||
+        typeof Html5QrcodeSupportedFormats === "undefined"
+    ) {
+
+        mensajeEscanerVenta.textContent =
+            "No se pudo cargar el escáner. Recarga la página.";
+
+        panelEscanerVenta.hidden = false;
+
+        return;
+
+    }
+
+    panelEscanerVenta.hidden = false;
+
+    mensajeEscanerVenta.textContent =
+        "Solicitando acceso a la cámara...";
+
+    procesandoCodigoVenta = false;
+
+    try {
+
+        lectorCodigoVenta = new Html5Qrcode(
+            "lectorCamaraVenta",
+            {
+                formatsToSupport: obtenerFormatosEscaner(),
+                verbose: false
+            }
+        );
+
+        await lectorCodigoVenta.start(
+
+            { facingMode: "environment" },
+
+            {
+                fps: 10,
+                qrbox: {
+                    width: 250,
+                    height: 120
+                }
+            },
+
+            async (codigoLeido) => {
+
+                if (procesandoCodigoVenta) {
+                    return;
+                }
+
+                procesandoCodigoVenta = true;
+
+                await detenerEscanerVenta();
+
+                buscarVenta.value = codigoLeido;
+
+                buscarProductosVenta();
+
+                const productoEncontrado =
+                    inventarioActual[codigoLeido];
+
+                if (productoEncontrado) {
+
+                    agregarAlCarrito(codigoLeido);
+
+                    mensajeBusquedaVenta.textContent =
+                        "Producto escaneado y agregado al carrito.";
+
+                } else {
+
+                    mensajeBusquedaVenta.textContent =
+                        "No encontramos ese código. Comprueba que esté registrado.";
+
+                }
+
+                buscarVenta.focus();
+
+            },
+
+            () => {}
+
+        );
+
+        escanerVentaActivo = true;
+
+        mensajeEscanerVenta.textContent =
+            "Apunta la cámara al código de barras.";
+
+    } catch (error) {
+
+        console.error("Error iniciando escáner de ventas:", error);
+
+        await detenerEscanerVenta();
+
+        panelEscanerVenta.hidden = false;
+
+        mensajeEscanerVenta.textContent =
+            "No se pudo iniciar la cámara. Comprueba los permisos.";
+
+    }
+
+}
+
+
+// ==========================================
+// MOSTRAR Y OCULTAR HISTORIAL
+// ==========================================
+
+btnMostrarHistorial.addEventListener("click", () => {
+
+    const estaAbierto = !contenidoHistorial.hidden;
+
+    contenidoHistorial.hidden = estaAbierto;
+
+    btnMostrarHistorial.setAttribute(
+        "aria-expanded",
+        String(!estaAbierto)
+    );
+
+    if (!estaAbierto) {
+
+        mensajeHistorial.textContent =
+            "El historial estará disponible cuando conectemos el registro de ventas a Firebase.";
+
+    }
+
+});
+
+
+// ==========================================
+// CONFIRMAR VENTA
+// ==========================================
+
+// Todavía no se permite guardar ni descontar existencias.
+// Primero configuraremos los permisos y la escritura segura.
+
+btnVender.disabled = true;
+
+btnVender.addEventListener("click", () => {
+
+    mensajeVenta.textContent =
+        "La confirmación de ventas todavía no está habilitada.";
+
+});
+
+
+// ==========================================
+// CONTROLAR SESIÓN
+// ==========================================
+
+onAuthStateChanged(auth, async (usuario) => {
+
+    if (detenerInventario) {
+
+        detenerInventario();
+
+        detenerInventario = null;
+
+    }
+
+    await detenerEscanerRegistro();
+
+    await detenerEscanerVenta();
+
+    modalVentas.hidden = true;
+
+    inventarioActual = {};
+
+    Object.keys(carrito).forEach((codigo) => {
+        delete carrito[codigo];
+    });
+
     totalProductos.textContent = "0";
+
+    esAdministrador = false;
 
     if (usuario) {
 
@@ -583,14 +1438,19 @@ onAuthStateChanged(auth, async (usuario) => {
         );
 
         btnAdministrarUsuarios.hidden = true;
+
         btnRegistrar.hidden = true;
+
         seccionAgregar.hidden = true;
+
         seccionRegistro.hidden = true;
 
-        const esAdministrador = await comprobarAdministrador();
+        esAdministrador = await comprobarAdministrador();
 
         btnAdministrarUsuarios.hidden = !esAdministrador;
+
         btnRegistrar.hidden = !esAdministrador;
+
         seccionAgregar.hidden = !esAdministrador;
 
         escucharInventario();
@@ -600,9 +1460,13 @@ onAuthStateChanged(auth, async (usuario) => {
         mostrarLogin();
 
         menuDesplegable.hidden = true;
+
         btnAdministrarUsuarios.hidden = true;
+
         btnRegistrar.hidden = true;
+
         seccionAgregar.hidden = true;
+
         seccionRegistro.hidden = true;
 
     }
@@ -610,15 +1474,21 @@ onAuthStateChanged(auth, async (usuario) => {
 });
 
 
+// ==========================================
 // INICIAR SESIÓN
+// ==========================================
+
 formulario.addEventListener("submit", async (evento) => {
 
     evento.preventDefault();
 
     const correo = document.getElementById("correo").value.trim();
-    const contrasena = document.getElementById("contrasena").value;
+
+    const contrasena =
+        document.getElementById("contrasena").value;
 
     mensaje.textContent = "Verificando acceso...";
+
     botonLogin.disabled = true;
 
     try {
@@ -661,4 +1531,31 @@ formulario.addEventListener("submit", async (evento) => {
 });
 
 
-console.log("Sistema de inventario iniciado correctamente");
+// ==========================================
+// CERRAR SESIÓN
+// ==========================================
+
+btnCerrarSesion.addEventListener("click", async () => {
+
+    try {
+
+        await detenerEscanerRegistro();
+
+        await detenerEscanerVenta();
+
+        await signOut(auth);
+
+        menuDesplegable.hidden = true;
+
+    } catch (error) {
+
+        console.error("Error al cerrar sesión:", error);
+
+        alert("No se pudo cerrar la sesión.");
+
+    }
+
+});
+
+
+console.log("Sistema de inventario y módulo de ventas iniciado correctamente");

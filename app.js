@@ -1951,6 +1951,7 @@ onAuthStateChanged(auth, async (usuario) => {
 
         esAdministrador = await comprobarAdministrador();
         await probarIdentificacionServidor();
+        probarGeneradorIdentificadorVenta();
 
         btnAdministrarUsuarios.hidden = !esAdministrador;
 

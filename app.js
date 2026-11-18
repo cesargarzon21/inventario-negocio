@@ -11,7 +11,9 @@ import {
     ref,
     get,
     runTransaction,
-    onValue
+    onValue,
+    update,
+    push
 } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-database.js";
 
 
@@ -117,6 +119,7 @@ let inventarioActual = {};
 
 let esAdministrador = false;
 
+let procesandoVenta = false;
 
 // ==========================================
 // VARIABLES DEL ESCÁNER DE REGISTRO
@@ -718,18 +721,15 @@ btnAbrirVentas.addEventListener("click", async () => {
     await detenerEscanerRegistro();
 
     seccionRegistro.hidden = true;
-
     modalVentas.hidden = false;
 
     buscarVenta.focus();
 
-    mensajeVenta.textContent =
-        "La confirmación de ventas estará disponible después de configurar los permisos seguros.";
-
-    btnVender.disabled = true;
+    mensajeVenta.textContent = esAdministrador
+        ? "Agrega los productos y confirma la venta."
+        : "Puedes consultar productos y el historial. La confirmación está reservada al administrador.";
 
     buscarProductosVenta();
-
     renderizarCarrito();
 
 });
@@ -1080,7 +1080,10 @@ function renderizarCarrito() {
 
     // La confirmación permanece desactivada en esta etapa.
 
-    btnVender.disabled = true;
+    btnVender.disabled =
+    !esAdministrador ||
+    codigos.length === 0 ||
+    procesandoVenta;
 
 }
 
@@ -1353,10 +1356,305 @@ async function iniciarEscanerVenta() {
 
 
 // ==========================================
+// FECHAS Y HORAS DE COLOMBIA
+// ==========================================
+
+function obtenerDiaBogota(timestamp) {
+
+    const partes = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "America/Bogota",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+    }).formatToParts(new Date(timestamp));
+
+    const obtener = (tipo) =>
+        partes.find(parte => parte.type === tipo).value;
+
+    return (
+        obtener("year") + "-" +
+        obtener("month") + "-" +
+        obtener("day")
+    );
+
+}
+
+
+function formatearFechaBogota(dia) {
+
+    const [anio, mes, diaMes] = dia.split("-").map(Number);
+
+    const fecha = new Date(anio, mes - 1, diaMes, 12);
+
+    return new Intl.DateTimeFormat("es-CO", {
+        day: "numeric",
+        month: "long",
+        year: "numeric"
+    }).format(fecha);
+
+}
+
+
+function formatearHoraBogota(timestamp) {
+
+    return new Intl.DateTimeFormat("es-CO", {
+        timeZone: "America/Bogota",
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true
+    }).format(new Date(timestamp));
+
+}
+
+
+// ==========================================
+// CONFIRMAR VENTA
+// ==========================================
+
+btnVender.addEventListener("click", confirmarVenta);
+
+
+async function confirmarVenta() {
+
+    if (procesandoVenta) {
+        return;
+    }
+
+    if (!auth.currentUser || !esAdministrador) {
+
+        mensajeVenta.textContent =
+            "No tienes permisos para confirmar ventas.";
+
+        return;
+
+    }
+
+    const codigos = Object.keys(carrito);
+
+    if (codigos.length === 0) {
+
+        mensajeVenta.textContent =
+            "Agrega al menos un producto.";
+
+        return;
+
+    }
+
+    procesandoVenta = true;
+
+    btnVender.disabled = true;
+
+    mensajeVenta.textContent =
+        "Verificando existencias y registrando venta...";
+
+    try {
+
+        // Consultar nuevamente el inventario directamente en Firebase.
+
+        const resultadoInventario = await get(
+            ref(database, "inventario")
+        );
+
+        if (!resultadoInventario.exists()) {
+            throw new Error("No hay productos registrados.");
+        }
+
+        const inventarioFresco = resultadoInventario.val();
+
+        const productosVenta = [];
+
+        let total = 0;
+
+        const actualizaciones = {};
+
+        // Revisar cada producto del carrito.
+
+        for (const codigo of codigos) {
+
+            const producto = inventarioFresco[codigo];
+
+            if (!producto) {
+
+                throw new Error(
+                    "El producto con código " + codigo +
+                    " ya no existe en el inventario."
+                );
+
+            }
+
+            const cantidad = Number(carrito[codigo].cantidad);
+
+            const stock = Number(producto.cantidad);
+
+            const precio = Number(producto.precioVenta);
+
+            if (
+                !Number.isInteger(cantidad) ||
+                cantidad < 1
+            ) {
+
+                throw new Error(
+                    "Hay una cantidad inválida en el carrito."
+                );
+
+            }
+
+            if (
+                !Number.isInteger(stock) ||
+                stock < cantidad
+            ) {
+
+                throw new Error(
+                    "Existencias insuficientes para: " +
+                    producto.nombre +
+                    ". Disponibles: " + (stock || 0)
+                );
+
+            }
+
+            if (
+                !Number.isFinite(precio) ||
+                precio <= 0
+            ) {
+
+                throw new Error(
+                    "El precio de " +
+                    producto.nombre +
+                    " no es válido."
+                );
+
+            }
+
+            const subtotal = precio * cantidad;
+
+            total += subtotal;
+
+            productosVenta.push({
+
+                codigoBarras: codigo,
+
+                nombre: String(producto.nombre || "Producto"),
+
+                cantidad: cantidad,
+
+                precioUnitario: precio,
+
+                subtotal: subtotal
+
+            });
+
+            // Preparar el descuento del inventario.
+
+            actualizaciones[
+                "inventario/" + codigo + "/cantidad"
+            ] = stock - cantidad;
+
+        }
+
+        if (
+            !Number.isFinite(total) ||
+            total <= 0
+        ) {
+
+            throw new Error("El total de la venta no es válido.");
+
+        }
+
+        // Crear un identificador único para la venta.
+
+        const referenciaVenta = push(ref(database, "ventas"));
+
+        const idVenta = referenciaVenta.key;
+
+        if (!idVenta) {
+            throw new Error("No se pudo generar el número de venta.");
+        }
+
+        const fechaHora = Date.now();
+
+        const dia = obtenerDiaBogota(fechaHora);
+
+        const venta = {
+
+            fechaHora: fechaHora,
+
+            dia: dia,
+
+            vendedor: {
+                uid: auth.currentUser.uid,
+                correo: auth.currentUser.email || "Sin correo"
+            },
+
+            productos: productosVenta,
+
+            total: total
+
+        };
+
+        // Añadir el registro de venta a la misma actualización
+        // que descuenta las existencias.
+
+        actualizaciones["ventas/" + idVenta] = venta;
+
+        // Firebase aplica todas las rutas juntas o ninguna.
+
+        await update(
+            ref(database),
+            actualizaciones
+        );
+
+        // Limpiar el carrito después de guardar correctamente.
+
+        Object.keys(carrito).forEach(codigo => {
+            delete carrito[codigo];
+        });
+
+        renderizarCarrito();
+
+        buscarProductosVenta();
+
+        mensajeVenta.textContent =
+            "¡Venta registrada correctamente! Total: " +
+            dinero(total);
+
+        // Actualizar el historial si está abierto.
+
+        if (!contenidoHistorial.hidden) {
+            await cargarHistorialVentas();
+        }
+
+    } catch (error) {
+
+        console.error("Error confirmando venta:", error);
+
+        if (error.code === "PERMISSION_DENIED") {
+
+            mensajeVenta.textContent =
+                "Firebase rechazó la venta. Comprueba los permisos.";
+
+        } else {
+
+            mensajeVenta.textContent =
+                error.message || "No se pudo registrar la venta.";
+
+        }
+
+    } finally {
+
+        procesandoVenta = false;
+
+        renderizarCarrito();
+
+    }
+
+}
+
+
+// ==========================================
 // MOSTRAR Y OCULTAR HISTORIAL
 // ==========================================
 
-btnMostrarHistorial.addEventListener("click", () => {
+btnMostrarHistorial.addEventListener("click", async () => {
 
     const estaAbierto = !contenidoHistorial.hidden;
 
@@ -1368,30 +1666,202 @@ btnMostrarHistorial.addEventListener("click", () => {
     );
 
     if (!estaAbierto) {
-
-        mensajeHistorial.textContent =
-            "El historial estará disponible cuando conectemos el registro de ventas a Firebase.";
-
+        await cargarHistorialVentas();
     }
 
 });
 
 
 // ==========================================
-// CONFIRMAR VENTA
+// CARGAR HISTORIAL DESDE FIREBASE
 // ==========================================
 
-// Todavía no se permite guardar ni descontar existencias.
-// Primero configuraremos los permisos y la escritura segura.
+async function cargarHistorialVentas() {
 
-btnVender.disabled = true;
+    listaHistorial.innerHTML = "";
 
-btnVender.addEventListener("click", () => {
+    mensajeHistorial.textContent =
+        "Cargando historial...";
 
-    mensajeVenta.textContent =
-        "La confirmación de ventas todavía no está habilitada.";
+    try {
 
-});
+        const resultado = await get(
+            ref(database, "ventas")
+        );
+
+        if (!resultado.exists()) {
+
+            mensajeHistorial.textContent =
+                "Todavía no hay ventas registradas.";
+
+            return;
+
+        }
+
+        const ventas = Object.entries(resultado.val());
+
+        // Ordenar de la más reciente a la más antigua.
+
+        ventas.sort((a, b) => {
+
+            return Number(b[1].fechaHora || 0) -
+                   Number(a[1].fechaHora || 0);
+
+        });
+
+        // Agrupar las ventas por día en Colombia.
+
+        const ventasPorDia = {};
+
+        ventas.forEach(([id, venta]) => {
+
+            const timestamp = Number(venta.fechaHora);
+
+            if (!Number.isFinite(timestamp)) {
+                return;
+            }
+
+            const dia = venta.dia || obtenerDiaBogota(timestamp);
+
+            if (!ventasPorDia[dia]) {
+                ventasPorDia[dia] = [];
+            }
+
+            ventasPorDia[dia].push({
+                id,
+                ...venta
+            });
+
+        });
+
+        const dias = Object.keys(ventasPorDia).sort().reverse();
+
+        if (dias.length === 0) {
+
+            mensajeHistorial.textContent =
+                "No se encontraron ventas válidas.";
+
+            return;
+
+        }
+
+        mensajeHistorial.textContent = "";
+
+        dias.forEach(dia => {
+
+            const ventasDelDia = ventasPorDia[dia];
+
+            const totalDia = ventasDelDia.reduce(
+                (suma, venta) => suma + Number(venta.total || 0),
+                0
+            );
+
+            // Contenedor del día.
+
+            const grupo = document.createElement("section");
+
+            grupo.className = "grupo-historial-ventas";
+
+            // Encabezado del día.
+
+            const encabezado = document.createElement("div");
+
+            encabezado.className = "encabezado-dia-historial";
+
+            const titulo = document.createElement("h3");
+
+            titulo.textContent = formatearFechaBogota(dia);
+
+            const resumen = document.createElement("p");
+
+            resumen.textContent =
+                ventasDelDia.length + " venta(s) · " +
+                dinero(totalDia);
+
+            encabezado.append(titulo, resumen);
+
+            grupo.appendChild(encabezado);
+
+            // Detalle de cada venta.
+
+            ventasDelDia.forEach(venta => {
+
+                const tarjeta = document.createElement("article");
+
+                tarjeta.className = "tarjeta-historial-venta";
+
+                const hora = document.createElement("strong");
+
+                hora.textContent =
+                    formatearHoraBogota(Number(venta.fechaHora));
+
+                const vendedor = document.createElement("p");
+
+                vendedor.textContent =
+                    "Vendedor: " +
+                    String(
+                        venta.vendedor?.correo || "No identificado"
+                    );
+
+                const detalle = document.createElement("div");
+
+                detalle.className = "detalle-historial-venta";
+
+                const productos = Array.isArray(venta.productos)
+                    ? venta.productos
+                    : [];
+
+                productos.forEach(producto => {
+
+                    const linea = document.createElement("p");
+
+                    linea.textContent =
+                        String(producto.nombre || "Producto") +
+                        " · " +
+                        Number(producto.cantidad || 0) +
+                        " x " +
+                        dinero(producto.precioUnitario) +
+                        " = " +
+                        dinero(producto.subtotal);
+
+                    detalle.appendChild(linea);
+
+                });
+
+                const totalVentaTexto = document.createElement("strong");
+
+                totalVentaTexto.className = "total-historial-venta";
+
+                totalVentaTexto.textContent =
+                    "Total: " + dinero(venta.total);
+
+                tarjeta.append(
+                    hora,
+                    vendedor,
+                    detalle,
+                    totalVentaTexto
+                );
+
+                grupo.appendChild(tarjeta);
+
+            });
+
+            listaHistorial.appendChild(grupo);
+
+        });
+
+    } catch (error) {
+
+        console.error("Error cargando historial:", error);
+
+        mensajeHistorial.textContent =
+            error.code === "PERMISSION_DENIED"
+                ? "No tienes permisos para consultar el historial."
+                : "No se pudo cargar el historial.";
+
+    }
+
+}
 
 
 // ==========================================

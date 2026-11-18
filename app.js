@@ -2063,4 +2063,31 @@ btnCerrarSesion.addEventListener("click", async () => {
 });
 
 
+function probarGeneradorIdentificadorVenta() {
+
+    if (
+        !globalThis.crypto ||
+        typeof globalThis.crypto.randomUUID !== "function"
+    ) {
+        throw new Error(
+            "Este dispositivo no admite crypto.randomUUID()."
+        );
+    }
+
+    const identificador = crypto.randomUUID();
+
+    console.log("Identificador generado:", identificador);
+
+    console.log(
+        "Longitud:",
+        identificador.length
+    );
+
+    console.log(
+        "Formato válido:",
+        /^[A-Za-z0-9_-]{16,80}$/.test(identificador)
+    );
+}
+
+
 console.log("Sistema de inventario y módulo de ventas iniciado correctamente");

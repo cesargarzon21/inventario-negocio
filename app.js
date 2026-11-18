@@ -2127,5 +2127,46 @@ function guardarSolicitudVentaPendiente(solicitud) {
   }
 }
 
+function cargarSolicitudVentaPendiente() {
+  try {
+    if (!auth.currentUser) {
+      return null;
+    }
+
+    const clave =
+      "solicitudVentaPendiente_" + auth.currentUser.uid;
+
+    const guardada = localStorage.getItem(clave);
+
+    if (!guardada) {
+      solicitudVentaPendiente = null;
+      return null;
+    }
+
+    const solicitud = JSON.parse(guardada);
+
+    if (
+      !solicitud ||
+      typeof solicitud !== "object" ||
+      typeof solicitud.requestId !== "string" ||
+      !Array.isArray(solicitud.productos) ||
+      !Number.isSafeInteger(solicitud.createdAt)
+    ) {
+      throw new Error("La solicitud guardada tiene datos inválidos.");
+    }
+
+    solicitudVentaPendiente = solicitud;
+
+    return solicitud;
+
+  } catch (error) {
+    console.error(
+      "Error al recuperar la solicitud pendiente:",
+      error
+    );
+
+    return null;
+  }
+}
 
 console.log("Sistema de inventario y módulo de ventas iniciado correctamente");

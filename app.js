@@ -2456,5 +2456,42 @@ function probarValidacionSolicitudVenta() {
   );
 }
 
+function probarAlmacenamientoSolicitudVenta() {
+  const solicitudPrueba = {
+    requestId: "pruebaAlmacenamiento2026",
+    productos: [
+      {
+        codigoBarras: "7701234567890",
+        cantidad: 3
+      }
+    ],
+    createdAt: Date.now()
+  };
+
+  const guardada =
+    guardarSolicitudVentaPendiente(solicitudPrueba);
+
+  const recuperada =
+    cargarSolicitudVentaPendiente();
+
+  const correcta =
+    guardada === true &&
+    recuperada !== null &&
+    recuperada.requestId === solicitudPrueba.requestId &&
+    recuperada.productos[0].cantidad === 3;
+
+  alert(
+    "PRUEBA DE ALMACENAMIENTO\n\n" +
+    "Guardar solicitud: " + (guardada ? "CORRECTO" : "ERROR") + "\n\n" +
+    "Recuperar solicitud: " + (recuperada ? "CORRECTO" : "ERROR") + "\n\n" +
+    "Conservar identificador y cantidad: " +
+    (correcta ? "CORRECTO" : "ERROR") + "\n\n" +
+    (correcta ? "PRUEBA SUPERADA" : "PRUEBA FALLIDA")
+  );
+
+  eliminarSolicitudVentaPendiente();
+}
+
+
 
 console.log("Sistema de inventario y módulo de ventas iniciado correctamente");

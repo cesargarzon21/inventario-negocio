@@ -1864,6 +1864,40 @@ async function cargarHistorialVentas() {
 }
 
 
+async function probarIdentificacionServidor() {
+  try {
+    const idToken = await auth.currentUser.getIdToken();
+
+    const respuesta = await fetch(
+      "https://servidor-ventas-inventario.stivengarzon42.workers.dev/",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          idToken: idToken
+        })
+      }
+    );
+
+    const resultado = await respuesta.json();
+
+    console.log("Resultado de identificación:", resultado);
+
+    alert(
+      "Estado: " + resultado.estado +
+      "\nRol: " + (resultado.rol || "Sin rol") +
+      "\nMensaje: " + resultado.mensaje
+    );
+
+  } catch (error) {
+    console.error("Error al probar identificación:", error);
+    alert("No se pudo conectar con el servidor.");
+  }
+}
+
+
 // ==========================================
 // CONTROLAR SESIÓN
 // ==========================================
@@ -1916,6 +1950,7 @@ onAuthStateChanged(auth, async (usuario) => {
         seccionRegistro.hidden = true;
 
         esAdministrador = await comprobarAdministrador();
+        await probarIdentificacionServidor();
 
         btnAdministrarUsuarios.hidden = !esAdministrador;
 

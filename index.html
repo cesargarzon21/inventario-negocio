@@ -9,7 +9,7 @@
 
     <title>Mi Inventario</title>
 
-    <link rel="stylesheet" href="styles.css?v=12">
+    <link rel="stylesheet" href="styles.css?v=13">
 </head>
 
 <body>
@@ -48,6 +48,8 @@
     <!-- APLICACIÓN DE INVENTARIO -->
 
     <div id="aplicacion" hidden>
+
+        <!-- ENCABEZADO -->
 
         <header class="encabezado">
 
@@ -88,9 +90,12 @@
         </header>
 
 
+        <!-- CONTENIDO PRINCIPAL -->
+
         <main class="contenedor">
 
-            <!-- PRODUCTOS -->
+
+            <!-- SECCIÓN PRODUCTOS -->
 
             <section class="productos">
 
@@ -101,15 +106,40 @@
                     id="btnInventario"
                     type="button"
                 >
+
                     <span class="icono-producto">🛒</span>
+
                     <span>Productos</span>
+
                     <strong id="totalProductos">0</strong>
+
                 </button>
 
             </section>
 
 
-            <!-- AÑADIR PRODUCTO -->
+            <!-- SECCIÓN VENDER -->
+
+            <section class="ventas">
+
+                <h2>Vender</h2>
+
+                <button
+                    class="tarjeta-ventas"
+                    id="btnAbrirVentas"
+                    type="button"
+                >
+
+                    <span class="icono-ventas">💰</span>
+
+                    <span>Realizar venta</span>
+
+                </button>
+
+            </section>
+
+
+            <!-- SECCIÓN AÑADIR PRODUCTO -->
 
             <section class="agregar">
 
@@ -121,14 +151,173 @@
                     type="button"
                     hidden
                 >
+
                     <span class="icono-agregar">📷</span>
+
                     <span>Añadir producto</span>
+
                 </button>
 
             </section>
 
 
-            <!-- FORMULARIO DE REGISTRO -->
+            <!-- VENTANA EMERGENTE DE VENTAS -->
+
+            <div
+                id="modalVentas"
+                class="modal-ventas"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="tituloVentas"
+                hidden
+            >
+
+                <div class="contenido-modal-ventas">
+
+                    <!-- ENCABEZADO DE VENTAS -->
+
+                    <div class="encabezado-formulario">
+
+                        <h2 id="tituloVentas">🛍️ Realizar venta</h2>
+
+                        <button
+                            type="button"
+                            id="btnCerrarVentas"
+                            aria-label="Cerrar ventana de ventas"
+                        >
+                            ✕
+                        </button>
+
+                    </div>
+
+
+                    <!-- BUSCADOR DE PRODUCTOS -->
+
+                    <label for="buscarVenta">Buscar producto</label>
+
+                    <div class="buscador-ventas">
+
+                        <input
+                            type="search"
+                            id="buscarVenta"
+                            placeholder="Nombre o código de barras..."
+                            autocomplete="off"
+                        >
+
+                        <button
+                            type="button"
+                            id="btnEscanearVenta"
+                            aria-label="Escanear código de barras"
+                        >
+                            📷
+                        </button>
+
+                    </div>
+
+
+                    <!-- ESCÁNER DE VENTAS -->
+
+                    <div id="panelEscanerVenta" hidden>
+
+                        <div id="lectorCamaraVenta"></div>
+
+                        <p id="mensajeEscanerVenta">
+                            Apunta la cámara al código de barras del producto.
+                        </p>
+
+                        <button
+                            type="button"
+                            id="btnCerrarEscanerVenta"
+                        >
+                            Cancelar escaneo
+                        </button>
+
+                    </div>
+
+
+                    <!-- RESULTADOS DE BÚSQUEDA -->
+
+                    <div
+                        id="resultadosVenta"
+                        class="resultados-venta"
+                        hidden
+                    ></div>
+
+                    <p id="mensajeBusquedaVenta"></p>
+
+
+                    <!-- LISTA DEL CARRITO -->
+
+                    <div class="encabezado-carrito">
+
+                        <h3>Productos agregados</h3>
+
+                    </div>
+
+                    <div id="listaCarrito" class="lista-carrito">
+
+                        <p class="carrito-vacio">
+                            Todavía no has agregado productos.
+                        </p>
+
+                    </div>
+
+
+                    <!-- TOTAL DE LA VENTA -->
+
+                    <div class="resumen-venta">
+
+                        <span>Total de la venta</span>
+
+                        <strong id="totalVenta">$0</strong>
+
+                    </div>
+
+
+                    <!-- BOTÓN CONFIRMAR -->
+
+                    <button
+                        type="button"
+                        id="btnVender"
+                        disabled
+                    >
+                        Confirmar venta
+                    </button>
+
+                    <p id="mensajeVenta"></p>
+
+
+                    <!-- HISTORIAL DE VENTAS -->
+
+                    <div class="seccion-historial">
+
+                        <button
+                            type="button"
+                            id="btnMostrarHistorial"
+                            aria-expanded="false"
+                        >
+                            📋 Historial de ventas
+
+                            <span id="iconoHistorial">▼</span>
+
+                        </button>
+
+                        <div id="contenidoHistorial" hidden>
+
+                            <div id="listaHistorial"></div>
+
+                            <p id="mensajeHistorial"></p>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- FORMULARIO DE REGISTRO DE PRODUCTOS -->
 
             <section id="seccionRegistro" class="seccion-registro" hidden>
 
@@ -157,6 +346,7 @@
                         required
                     >
 
+
                     <label for="codigoBarras">Código de barras</label>
 
                     <div class="campo-codigo">
@@ -180,7 +370,8 @@
 
                     </div>
 
-                    <!-- PANEL DEL ESCÁNER -->
+
+                    <!-- ESCÁNER DE REGISTRO -->
 
                     <div id="panelEscanerRegistro" hidden>
 
@@ -211,6 +402,7 @@
                         required
                     >
 
+
                     <label for="precioVenta">Precio de venta</label>
 
                     <input
@@ -222,6 +414,7 @@
                         required
                     >
 
+
                     <div class="resultado-ganancia">
 
                         <span>Porcentaje de ganancia</span>
@@ -229,6 +422,7 @@
                         <strong id="porcentajeGanancia">0%</strong>
 
                     </div>
+
 
                     <label for="cantidadProducto">Cantidad inicial</label>
 
@@ -240,6 +434,7 @@
                         step="1"
                         required
                     >
+
 
                     <button type="submit" id="btnGuardarProducto">
                         Guardar producto
@@ -260,7 +455,7 @@
 
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
-    <script type="module" src="app.js?v=13"></script>
+    <script type="module" src="app.js?v=14"></script>
 
 </body>
 

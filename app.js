@@ -2245,5 +2245,18 @@ function crearSolicitudVentaPendiente(productos) {
   }
 }
 
+function obtenerSolicitudVentaPendiente(productos) {
+
+  const solicitudExistente =
+    cargarSolicitudVentaPendiente();
+
+  if (solicitudExistente !== null) {
+    return solicitudExistente;
+  }
+
+  return crearSolicitudVentaPendiente(productos);
+}
+
+
 
 console.log("Sistema de inventario y módulo de ventas iniciado correctamente");

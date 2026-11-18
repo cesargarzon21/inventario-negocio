@@ -2101,8 +2101,12 @@ function probarGeneradorIdentificadorVenta() {
 
 function guardarSolicitudVentaPendiente(solicitud) {
   try {
-    if (!solicitud || typeof solicitud !== "object") {
-      throw new Error("La solicitud no es válida.");
+    if (!auth.currentUser) {
+      throw new Error("No hay un usuario autenticado.");
+    }
+
+    if (!validarSolicitudVentaPendiente(solicitud)) {
+      throw new Error("La solicitud no superó las validaciones.");
     }
 
     const clave =
@@ -2126,6 +2130,7 @@ function guardarSolicitudVentaPendiente(solicitud) {
     return false;
   }
 }
+
 
 function cargarSolicitudVentaPendiente() {
   try {

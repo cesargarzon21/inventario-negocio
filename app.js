@@ -2099,6 +2099,33 @@ function probarGeneradorIdentificadorVenta() {
     }
 }
 
+function guardarSolicitudVentaPendiente(solicitud) {
+  try {
+    if (!solicitud || typeof solicitud !== "object") {
+      throw new Error("La solicitud no es válida.");
+    }
+
+    const clave =
+      "solicitudVentaPendiente_" + auth.currentUser.uid;
+
+    localStorage.setItem(
+      clave,
+      JSON.stringify(solicitud)
+    );
+
+    solicitudVentaPendiente = solicitud;
+
+    return true;
+
+  } catch (error) {
+    console.error(
+      "Error al guardar la solicitud pendiente:",
+      error
+    );
+
+    return false;
+  }
+}
 
 
 console.log("Sistema de inventario y módulo de ventas iniciado correctamente");

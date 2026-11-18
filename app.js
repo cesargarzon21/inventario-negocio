@@ -2346,7 +2346,42 @@ async function enviarSolicitudVentaServidor(solicitud) {
   }
 }
 
+function validarRespuestaVentaServidor(resultado) {
+  if (
+    !resultado ||
+    typeof resultado !== "object" ||
+    Array.isArray(resultado)
+  ) {
+    return false;
+  }
 
+  if (resultado.estado !== "correcto") {
+    return false;
+  }
+
+  if (
+    typeof resultado.ventaId !== "string" ||
+    !/^[A-Za-z0-9_-]{16,80}$/.test(resultado.ventaId)
+  ) {
+    return false;
+  }
+
+  if (
+    !Number.isSafeInteger(resultado.total) ||
+    resultado.total <= 0
+  ) {
+    return false;
+  }
+
+  if (
+    typeof resultado.duplicada !== "boolean" &&
+    typeof resultado.recuperada !== "boolean"
+  ) {
+    return false;
+  }
+
+  return true;
+}
 
 
 console.log("Sistema de inventario y módulo de ventas iniciado correctamente");

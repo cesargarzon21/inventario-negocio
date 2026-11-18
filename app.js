@@ -2257,6 +2257,44 @@ function obtenerSolicitudVentaPendiente(productos) {
   return crearSolicitudVentaPendiente(productos);
 }
 
+function validarSolicitudVentaPendiente(solicitud) {
+  if (
+    !solicitud ||
+    typeof solicitud !== "object" ||
+    Array.isArray(solicitud) ||
+    typeof solicitud.requestId !== "string" ||
+    !/^[A-Za-z0-9_-]{16,80}$/.test(solicitud.requestId) ||
+    !Number.isSafeInteger(solicitud.createdAt) ||
+    solicitud.createdAt <= 0 ||
+    !Array.isArray(solicitud.productos) ||
+    solicitud.productos.length === 0 ||
+    solicitud.productos.length > 500
+  ) {
+    return false;
+  }
+
+  const codigosVistos = new Set();
+
+  for (const producto of solicitud.productos) {
+    if (
+      !producto ||
+      typeof producto.codigoBarras !== "string" ||
+      producto.codigoBarras.trim() === "" ||
+      /[.#$\[\]\/]/.test(producto.codigoBarras) ||
+      !Number.isSafeInteger(producto.cantidad) ||
+      producto.cantidad <= 0 ||
+      codigosVistos.has(producto.codigoBarras)
+    ) {
+      return false;
+    }
+
+    codigosVistos.add(producto.codigoBarras);
+  }
+
+  return true;
+}
+
+
 
 
 console.log("Sistema de inventario y módulo de ventas iniciado correctamente");

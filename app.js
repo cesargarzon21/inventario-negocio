@@ -147,6 +147,8 @@ let procesandoCodigoVenta = false;
 
 const carrito = {};
 
+let solicitudVentaPendiente = null;
+
 
 // ==========================================
 // FORMATO DE DINERO

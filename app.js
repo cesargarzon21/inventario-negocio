@@ -2194,4 +2194,56 @@ function eliminarSolicitudVentaPendiente() {
   }
 }
 
+function crearSolicitudVentaPendiente(productos) {
+  try {
+    if (
+      !Array.isArray(productos) ||
+      productos.length === 0
+    ) {
+      throw new Error("No hay productos para registrar.");
+    }
+
+    if (
+      !globalThis.crypto ||
+      typeof globalThis.crypto.randomUUID !== "function"
+    ) {
+      throw new Error("No se puede generar un identificador seguro.");
+    }
+
+    const productosCopia = productos.map(function(producto) {
+      if (
+        !producto ||
+        typeof producto.codigoBarras !== "string" ||
+        producto.codigoBarras.trim() === "" ||
+        !Number.isSafeInteger(producto.cantidad) ||
+        producto.cantidad <= 0
+      ) {
+        throw new Error("Hay un producto con datos inválidos.");
+      }
+
+      return {
+        codigoBarras: producto.codigoBarras.trim(),
+        cantidad: producto.cantidad
+      };
+    });
+
+    const solicitud = {
+      requestId: crypto.randomUUID(),
+      productos: productosCopia,
+      createdAt: Date.now()
+    };
+
+    if (!guardarSolicitudVentaPendiente(solicitud)) {
+      throw new Error("No se pudo guardar la solicitud.");
+    }
+
+    return solicitud;
+
+  } catch (error) {
+    console.error("Error al crear la solicitud:", error);
+    return null;
+  }
+}
+
+
 console.log("Sistema de inventario y módulo de ventas iniciado correctamente");

@@ -2460,5 +2460,6 @@ function probarValidacionSolicitudVenta() {
   }
 }
 
+probarValidacionSolicitudVenta();
 
 console.log("Sistema de inventario y módulo de ventas iniciado correctamente");

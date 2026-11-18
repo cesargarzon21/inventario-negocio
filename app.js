@@ -1954,7 +1954,7 @@ onAuthStateChanged(auth, async (usuario) => {
         esAdministrador = await comprobarAdministrador();
         await probarIdentificacionServidor();
         probarGeneradorIdentificadorVenta();
-        probarAlmacenamientoSolicitudVenta();
+        
 
         btnAdministrarUsuarios.hidden = !esAdministrador;
 

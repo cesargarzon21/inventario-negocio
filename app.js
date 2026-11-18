@@ -2326,9 +2326,27 @@ async function enviarSolicitudVentaServidor(solicitud) {
 
     const resultado = await respuesta.json();
 
-    if (!respuesta.ok || !resultado ||
-        typeof resultado.estado !== "string") {
-      throw new Error("El servidor devolvió una respuesta inválida.");
+    if (
+      !respuesta.ok ||
+      !resultado ||
+      typeof resultado.estado !== "string"
+    ) {
+      throw new Error("Respuesta inválida del servidor.");
+    }
+
+    if (
+      resultado.estado === "correcto" &&
+      !validarRespuestaVentaServidor(resultado)
+    ) {
+      throw new Error("La confirmación de venta no superó las validaciones.");
+    }
+
+    if (
+      resultado.estado !== "correcto" &&
+      resultado.estado !== "error" &&
+      resultado.estado !== "incierto"
+    ) {
+      throw new Error("Estado de respuesta desconocido.");
     }
 
     return resultado;
@@ -2345,6 +2363,7 @@ async function enviarSolicitudVentaServidor(solicitud) {
     };
   }
 }
+
 
 function validarRespuestaVentaServidor(resultado) {
   if (

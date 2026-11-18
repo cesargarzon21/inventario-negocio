@@ -2063,31 +2063,39 @@ btnCerrarSesion.addEventListener("click", async () => {
 });
 
 
+
 function probarGeneradorIdentificadorVenta() {
 
-    if (
-        !globalThis.crypto ||
-        typeof globalThis.crypto.randomUUID !== "function"
-    ) {
-        throw new Error(
-            "Este dispositivo no admite crypto.randomUUID()."
+    try {
+
+        if (
+            !globalThis.crypto ||
+            typeof globalThis.crypto.randomUUID !== "function"
+        ) {
+            throw new Error(
+                "Este dispositivo no admite crypto.randomUUID()."
+            );
+        }
+
+        const identificador = crypto.randomUUID();
+
+        const formatoValido =
+            /^[A-Za-z0-9_-]{16,80}$/.test(identificador);
+
+        alert(
+            "Prueba de identificador\n\n" +
+            "Identificador: " + identificador +
+            "\nLongitud: " + identificador.length +
+            "\nFormato válido: " + formatoValido
         );
+
+    } catch (error) {
+
+        alert("Error en la prueba: " + error.message);
+
     }
-
-    const identificador = crypto.randomUUID();
-
-    console.log("Identificador generado:", identificador);
-
-    console.log(
-        "Longitud:",
-        identificador.length
-    );
-
-    console.log(
-        "Formato válido:",
-        /^[A-Za-z0-9_-]{16,80}$/.test(identificador)
-    );
 }
+
 
 
 console.log("Sistema de inventario y módulo de ventas iniciado correctamente");

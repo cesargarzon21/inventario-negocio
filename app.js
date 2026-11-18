@@ -2296,6 +2296,56 @@ function validarSolicitudVentaPendiente(solicitud) {
   return true;
 }
 
+async function enviarSolicitudVentaServidor(solicitud) {
+  try {
+    if (!validarSolicitudVentaPendiente(solicitud)) {
+      throw new Error("La solicitud de venta no es válida.");
+    }
+
+    if (!auth.currentUser) {
+      throw new Error("No hay un usuario autenticado.");
+    }
+
+    const idToken = await auth.currentUser.getIdToken();
+
+    const respuesta = await fetch(
+      "https://servidor-ventas-inventario.stivengarzon42.workers.dev/",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          accion: "registrarVenta",
+          idToken: idToken,
+          requestId: solicitud.requestId,
+          productos: solicitud.productos
+        })
+      }
+    );
+
+    const resultado = await respuesta.json();
+
+    if (!respuesta.ok || !resultado ||
+        typeof resultado.estado !== "string") {
+      throw new Error("El servidor devolvió una respuesta inválida.");
+    }
+
+    return resultado;
+
+  } catch (error) {
+    console.error(
+      "Error al enviar la solicitud de venta:",
+      error
+    );
+
+    return {
+      estado: "incierto",
+      mensaje: "No fue posible confirmar el resultado de la solicitud."
+    };
+  }
+}
+
 
 
 

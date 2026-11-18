@@ -267,7 +267,7 @@ button:active {
     color: #279c83;
     }
 
-    
+}
 /* PANTALLA DE INICIO DE SESIÓN */
 
 [hidden] {
@@ -667,4 +667,455 @@ button.usuario {
     .encabezado-producto h3 {
         font-size: 14px;
     }
+}
+
+/* =================================
+   TARJETA VENDER
+================================= */
+
+.ventas {
+    width: 100%;
+    margin: 0 0 65px;
+}
+
+.ventas h2 {
+    font-size: 23px;
+    margin: 0 0 22px;
+    font-weight: 700;
+    color: #25292d;
+}
+
+.tarjeta-ventas {
+    width: 100%;
+    min-height: 110px;
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    padding: 18px 25px;
+    background: #ffffff;
+    border: 1px solid #cfe4d8;
+    border-radius: 20px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.09);
+    color: #555b5b;
+    font-size: 21px;
+    font-weight: 700;
+    text-align: left;
+}
+
+.icono-ventas {
+    font-size: 42px;
+    flex-shrink: 0;
+}
+
+.tarjeta-ventas span:nth-child(2) {
+    flex: 1;
+    text-align: center;
+}
+
+
+/* =================================
+   VENTANA EMERGENTE DE VENTAS
+================================= */
+
+.modal-ventas {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.55);
+}
+
+.modal-ventas[hidden] {
+    display: none !important;
+}
+
+.contenido-modal-ventas {
+    width: 100%;
+    max-width: 500px;
+    max-height: 92vh;
+    overflow-y: auto;
+    padding: 22px;
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 10px 35px rgba(0,0,0,0.2);
+}
+
+.contenido-modal-ventas .encabezado-formulario {
+    margin-bottom: 22px;
+}
+
+.contenido-modal-ventas .encabezado-formulario h2 {
+    color: #075b46;
+    font-size: 21px;
+}
+
+#btnCerrarVentas {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    border: none;
+    border-radius: 9px;
+    background: #f1f5f3;
+    color: #52645b;
+    font-size: 18px;
+}
+
+.contenido-modal-ventas label {
+    display: block;
+    margin: 12px 0 8px;
+    color: #344b41;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+
+/* =================================
+   BUSCADOR DE VENTAS
+================================= */
+
+.buscador-ventas {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 5px 8px 5px 13px;
+    border: 1px solid #cfe4d8;
+    border-radius: 11px;
+    background: #f8fbf9;
+}
+
+.buscador-ventas input {
+    flex: 1;
+    min-width: 0;
+    padding: 12px 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 15px;
+}
+
+#btnEscanearVenta {
+    width: 43px;
+    height: 43px;
+    flex-shrink: 0;
+    border: none;
+    border-radius: 9px;
+    background: #e9f5ef;
+    color: #075b46;
+    font-size: 21px;
+}
+
+#mensajeBusquedaVenta,
+#mensajeVenta,
+#mensajeHistorial {
+    min-height: 16px;
+    color: #718078;
+    font-size: 12px;
+    text-align: center;
+}
+
+
+/* =================================
+   ESCÁNER DE VENTAS
+================================= */
+
+#panelEscanerVenta {
+    margin-top: 15px;
+    padding: 12px;
+    border: 1px solid #dce8e1;
+    border-radius: 12px;
+    background: #f8fbf9;
+}
+
+#lectorCamaraVenta {
+    width: 100%;
+    overflow: hidden;
+    border-radius: 10px;
+}
+
+#mensajeEscanerVenta {
+    color: #52645b;
+    font-size: 13px;
+    text-align: center;
+}
+
+#btnCerrarEscanerVenta {
+    width: 100%;
+    padding: 11px;
+    border: none;
+    border-radius: 9px;
+    background: #f1f5f3;
+    color: #344b41;
+    font-weight: 600;
+}
+
+
+/* =================================
+   RESULTADOS DE BÚSQUEDA
+================================= */
+
+.resultados-venta {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    max-height: 220px;
+    overflow-y: auto;
+    margin-top: 12px;
+}
+
+.resultado-producto-venta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 13px;
+    border: 1px solid #e1ebe5;
+    border-radius: 11px;
+    background: #ffffff;
+}
+
+.datos-resultado-venta {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.datos-resultado-venta strong {
+    color: #075b46;
+    font-size: 14px;
+    overflow-wrap: anywhere;
+}
+
+.datos-resultado-venta span {
+    color: #718078;
+    font-size: 12px;
+}
+
+.resultado-producto-venta button {
+    flex-shrink: 0;
+    padding: 9px 13px;
+    border: none;
+    border-radius: 8px;
+    background: #087653;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+
+/* =================================
+   CARRITO DE VENTAS
+================================= */
+
+.encabezado-carrito {
+    margin-top: 25px;
+    margin-bottom: 12px;
+}
+
+.encabezado-carrito h3 {
+    margin: 0;
+    color: #25292d;
+    font-size: 17px;
+}
+
+.lista-carrito {
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+}
+
+.carrito-vacio {
+    padding: 22px 12px;
+    border: 1px dashed #dce5df;
+    border-radius: 11px;
+    color: #87948d;
+    text-align: center;
+    font-size: 13px;
+}
+
+.item-carrito {
+    padding: 13px;
+    border: 1px solid #e1ebe5;
+    border-radius: 12px;
+    background: #ffffff;
+}
+
+.datos-item-carrito {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.datos-item-carrito strong {
+    color: #075b46;
+    font-size: 14px;
+    overflow-wrap: anywhere;
+}
+
+.datos-item-carrito span {
+    color: #344b41;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.controles-cantidad {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.controles-cantidad button {
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 8px;
+    background: #e9f5ef;
+    color: #075b46;
+    font-size: 19px;
+    font-weight: 700;
+}
+
+.controles-cantidad input {
+    width: 65px;
+    height: 34px;
+    border: 1px solid #dce5df;
+    border-radius: 7px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.controles-cantidad .btn-eliminar-carrito {
+    margin-left: auto;
+    background: #fceeed;
+    color: #c0392b;
+    font-size: 15px;
+}
+
+
+/* =================================
+   TOTAL Y CONFIRMAR VENTA
+================================= */
+
+.resumen-venta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+    padding: 17px;
+    border-radius: 11px;
+    background: #edf7f2;
+    color: #075b46;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.resumen-venta strong {
+    font-size: 21px;
+}
+
+#btnVender {
+    width: 100%;
+    margin-top: 14px;
+    padding: 15px;
+    border: none;
+    border-radius: 10px;
+    background: #087653;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+#btnVender:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+
+/* =================================
+   HISTORIAL DE VENTAS
+================================= */
+
+.seccion-historial {
+    margin-top: 22px;
+    border-top: 1px solid #e5ece8;
+    padding-top: 15px;
+}
+
+#btnMostrarHistorial {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 13px;
+    border: 1px solid #dce8e1;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #075b46;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: left;
+}
+
+#contenidoHistorial {
+    padding-top: 12px;
+}
+
+.venta-historial {
+    margin-bottom: 11px;
+    padding: 13px;
+    border: 1px solid #e1ebe5;
+    border-radius: 10px;
+    background: #ffffff;
+}
+
+.venta-historial strong {
+    color: #075b46;
+    font-size: 14px;
+}
+
+.venta-historial p {
+    margin: 6px 0;
+    color: #718078;
+    font-size: 12px;
+}
+
+.venta-historial .total-historial {
+    color: #075b46;
+    font-weight: 700;
+    font-size: 15px;
+}
+
+
+/* =================================
+   ADAPTACIÓN A CELULARES
+================================= */
+
+@media (max-width: 480px) {
+
+    .ventas {
+        margin-bottom: 55px;
+    }
+
+    .tarjeta-ventas {
+        min-height: 100px;
+        padding: 15px 18px;
+        font-size: 19px;
+    }
+
+    .contenido-modal-ventas {
+        padding: 17px;
+        max-height: 94vh;
+    }
+
+    .contenido-modal-ventas .encabezado-formulario h2 {
+        font-size: 19px;
+    }
+
 }

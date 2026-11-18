@@ -2169,4 +2169,29 @@ function cargarSolicitudVentaPendiente() {
   }
 }
 
+function eliminarSolicitudVentaPendiente() {
+  try {
+    if (!auth.currentUser) {
+      return false;
+    }
+
+    const clave =
+      "solicitudVentaPendiente_" + auth.currentUser.uid;
+
+    localStorage.removeItem(clave);
+
+    solicitudVentaPendiente = null;
+
+    return true;
+
+  } catch (error) {
+    console.error(
+      "Error al eliminar la solicitud pendiente:",
+      error
+    );
+
+    return false;
+  }
+}
+
 console.log("Sistema de inventario y módulo de ventas iniciado correctamente");

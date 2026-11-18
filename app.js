@@ -2130,7 +2130,7 @@ function guardarSolicitudVentaPendiente(solicitud) {
 function cargarSolicitudVentaPendiente() {
   try {
     if (!auth.currentUser) {
-      return null;
+      throw new Error("No hay un usuario autenticado.");
     }
 
     const clave =
@@ -2145,14 +2145,10 @@ function cargarSolicitudVentaPendiente() {
 
     const solicitud = JSON.parse(guardada);
 
-    if (
-      !solicitud ||
-      typeof solicitud !== "object" ||
-      typeof solicitud.requestId !== "string" ||
-      !Array.isArray(solicitud.productos) ||
-      !Number.isSafeInteger(solicitud.createdAt)
-    ) {
-      throw new Error("La solicitud guardada tiene datos inválidos.");
+    if (!validarSolicitudVentaPendiente(solicitud)) {
+      throw new Error(
+        "La solicitud guardada no superó las validaciones."
+      );
     }
 
     solicitudVentaPendiente = solicitud;
@@ -2161,13 +2157,14 @@ function cargarSolicitudVentaPendiente() {
 
   } catch (error) {
     console.error(
-      "Error al recuperar la solicitud pendiente:",
+      "No se pudo recuperar la solicitud pendiente:",
       error
     );
 
-    return null;
+    throw error;
   }
 }
+
 
 function eliminarSolicitudVentaPendiente() {
   try {

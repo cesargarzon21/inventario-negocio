@@ -2492,6 +2492,6 @@ function probarAlmacenamientoSolicitudVenta() {
   eliminarSolicitudVentaPendiente();
 }
 
-
+probarAlmacenamientoSolicitudVenta();
 
 console.log("Sistema de inventario y módulo de ventas iniciado correctamente");

@@ -2434,14 +2434,8 @@ function probarValidacionSolicitudVenta() {
   const solicitudDuplicada = {
     requestId: "ventaPrueba20261118",
     productos: [
-      {
-        codigoBarras: "7701234567890",
-        cantidad: 2
-      },
-      {
-        codigoBarras: "7701234567890",
-        cantidad: 1
-      }
+      { codigoBarras: "7701234567890", cantidad: 2 },
+      { codigoBarras: "7701234567890", cantidad: 1 }
     ],
     createdAt: Date.now()
   };
@@ -2449,15 +2443,17 @@ function probarValidacionSolicitudVenta() {
   const prueba3 =
     validarSolicitudVentaPendiente(solicitudDuplicada);
 
-  console.log("Prueba 1 - Solicitud válida:", prueba1);
-  console.log("Prueba 2 - Identificador inválido:", !prueba2);
-  console.log("Prueba 3 - Productos repetidos:", !prueba3);
+  const correcto = prueba1 && !prueba2 && !prueba3;
 
-  if (prueba1 && !prueba2 && !prueba3) {
-    console.log("Todas las pruebas finalizaron correctamente.");
-  } else {
-    console.error("Hay una prueba que no pasó.");
-  }
+  alert(
+    "PRUEBA DE SOLICITUD DE VENTA\n\n" +
+    "Prueba 1 - Solicitud válida: " + (prueba1 ? "ACEPTADA" : "ERROR") + "\n\n" +
+    "Prueba 2 - Identificador inválido: " + (!prueba2 ? "RECHAZADO" : "ERROR") + "\n\n" +
+    "Prueba 3 - Productos repetidos: " + (!prueba3 ? "RECHAZADOS" : "ERROR") + "\n\n" +
+    (correcto
+      ? "TODAS LAS PRUEBAS PASARON."
+      : "HAY PRUEBAS QUE FALLARON.")
+  );
 }
 
 probarValidacionSolicitudVenta();

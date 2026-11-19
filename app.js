@@ -2761,6 +2761,31 @@ function probarPreparacionSolicitudVenta() {
 
 }
 
+function comprobarSolicitudLocal() {
 
+  try {
+
+    const solicitud = cargarSolicitudVentaPendiente();
+
+    if (solicitud === null) {
+
+      alert("Correcto: no existe ninguna solicitud pendiente.");
+
+      return;
+
+    }
+
+    alert(
+      "Existe una solicitud pendiente.\n" +
+      "Identificador: " + solicitud.requestId
+    );
+
+  } catch (error) {
+
+    alert("No se pudo comprobar: " + error.message);
+
+  }
+
+}
 
 console.log("Sistema de inventario y módulo de ventas iniciado correctamente");

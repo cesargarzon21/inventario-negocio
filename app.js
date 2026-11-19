@@ -2737,5 +2737,30 @@ function restaurarSolicitudVentaPendienteAlIniciarSesion() {
 
 }
 
+function probarPreparacionSolicitudVenta() {
+
+  try {
+
+    const solicitud = prepararSolicitudVenta();
+
+    if (!validarSolicitudVentaPendiente(solicitud)) {
+      throw new Error("La solicitud preparada no es válida.");
+    }
+
+    alert(
+      "Prueba superada.\n" +
+      "Identificador: " + solicitud.requestId + "\n" +
+      "Productos: " + solicitud.productos.length
+    );
+
+  } catch (error) {
+
+    alert("Resultado de la prueba: " + error.message);
+
+  }
+
+}
+
+
 
 console.log("Sistema de inventario y módulo de ventas iniciado correctamente");

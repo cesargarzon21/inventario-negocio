@@ -2528,4 +2528,217 @@ function prepararPruebaPersistencia() {
   }
 }
 
+function obtenerProductosSolicitudVenta() {
+  const codigos = Object.keys(carrito);
+
+  return codigos.map(function(codigo) {
+    return {
+      codigoBarras: codigo,
+      cantidad: Number(carrito[codigo].cantidad)
+    };
+  });
+}
+
+function coincidenProductosSolicitud(productosActuales, solicitud) {
+  if (
+    !Array.isArray(productosActuales) ||
+    !validarSolicitudVentaPendiente(solicitud) ||
+    productosActuales.length !== solicitud.productos.length
+  ) {
+    return false;
+  }
+
+  const ordenar = function(productos) {
+    return productos
+      .map(function(producto) {
+        return {
+          codigoBarras: producto.codigoBarras,
+          cantidad: producto.cantidad
+        };
+      })
+      .sort(function(a, b) {
+        return a.codigoBarras.localeCompare(b.codigoBarras);
+      });
+  };
+
+  return JSON.stringify(ordenar(productosActuales)) ===
+    JSON.stringify(ordenar(solicitud.productos));
+}
+
+function prepararSolicitudVenta() {
+  const solicitudExistente =
+    cargarSolicitudVentaPendiente();
+
+  const productosActuales =
+    obtenerProductosSolicitudVenta();
+
+  // Si existe una solicitud anterior, debemos reutilizarla.
+
+  if (solicitudExistente !== null) {
+
+    // Si el carrito tiene productos, deben coincidir
+    // exactamente con la solicitud anterior.
+
+    if (productosActuales.length > 0) {
+
+      if (
+        !coincidenProductosSolicitud(
+          productosActuales,
+          solicitudExistente
+        )
+      ) {
+        throw new Error(
+          "Existe una venta pendiente con otros productos. " +
+          "Debes resolverla antes de registrar otra venta."
+        );
+      }
+
+    }
+
+    return solicitudExistente;
+  }
+
+  // Si no existe una solicitud anterior,
+  // necesitamos productos para crear una nueva.
+
+  if (productosActuales.length === 0) {
+    throw new Error("No hay productos para registrar.");
+  }
+
+  const nuevaSolicitud =
+    crearSolicitudVentaPendiente(productosActuales);
+
+  if (!nuevaSolicitud) {
+    throw new Error(
+      "No se pudo preparar la solicitud de venta."
+    );
+  }
+
+  return nuevaSolicitud;
+}
+
+function limpiarCarritoSolicitudConfirmada(solicitud) {
+  const productosActuales =
+    obtenerProductosSolicitudVenta();
+
+  // Si el carrito ya está vacío, no hay nada que limpiar.
+
+  if (productosActuales.length === 0) {
+    return true;
+  }
+
+  // No borrar productos que no pertenecen
+  // a la solicitud que acaba de confirmarse.
+
+  if (
+    !coincidenProductosSolicitud(
+      productosActuales,
+      solicitud
+    )
+  ) {
+    return false;
+  }
+
+  Object.keys(carrito).forEach(function(codigo) {
+    delete carrito[codigo];
+  });
+
+  renderizarCarrito();
+
+  buscarProductosVenta();
+
+  return true;
+}
+
+function finalizarVentaConfirmada(solicitud, resultado) {
+
+  if (!validarRespuestaVentaServidor(resultado)) {
+    throw new Error(
+      "La respuesta del servidor no confirma una venta válida."
+    );
+  }
+
+  // Recuperar la solicitud que permanece guardada.
+
+  const pendiente = cargarSolicitudVentaPendiente();
+
+  if (
+    pendiente === null ||
+    pendiente.requestId !== solicitud.requestId ||
+    !coincidenProductosSolicitud(
+      pendiente.productos,
+      solicitud
+    )
+  ) {
+    throw new Error(
+      "La solicitud pendiente no coincide con la venta confirmada."
+    );
+  }
+
+  // Limpiar únicamente el carrito correspondiente.
+
+  const carritoLimpiado =
+    limpiarCarritoSolicitudConfirmada(solicitud);
+
+  if (!carritoLimpiado) {
+    throw new Error(
+      "La venta fue confirmada, pero el carrito cambió. " +
+      "La solicitud pendiente se conservará."
+    );
+  }
+
+  // Eliminar la solicitud local.
+
+  if (!eliminarSolicitudVentaPendiente()) {
+    throw new Error(
+      "La venta fue confirmada, pero no se pudo limpiar " +
+      "la solicitud local."
+    );
+  }
+
+  mensajeVenta.textContent =
+    "¡Venta registrada correctamente! Total: " +
+    dinero(resultado.total);
+
+  return true;
+}
+
+function restaurarSolicitudVentaPendienteAlIniciarSesion() {
+
+  try {
+
+    const solicitud = cargarSolicitudVentaPendiente();
+
+    if (solicitud !== null) {
+
+      mensajeVenta.textContent =
+        "Hay una venta pendiente de confirmación. " +
+        "Debes recuperar su resultado antes de registrar otra.";
+
+    }
+
+    return solicitud;
+
+  } catch (error) {
+
+    solicitudVentaPendiente = null;
+
+    console.error(
+      "Error al restaurar la venta pendiente:",
+      error
+    );
+
+    mensajeVenta.textContent =
+      "No se pudo recuperar la solicitud pendiente. " +
+      "No registres otra venta hasta verificar su estado.";
+
+    return null;
+
+  }
+
+}
+
+
+
+
 console.log("Sistema de inventario y módulo de ventas iniciado correctamente");

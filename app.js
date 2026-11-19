@@ -1952,8 +1952,7 @@ onAuthStateChanged(auth, async (usuario) => {
         seccionRegistro.hidden = true;
 
         esAdministrador = await comprobarAdministrador();
-        await probarIdentificacionServidor();
-        probarGeneradorIdentificadorVenta();
+        
         
         
 

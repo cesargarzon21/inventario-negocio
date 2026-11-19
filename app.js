@@ -1415,6 +1415,7 @@ function formatearHoraBogota(timestamp) {
 btnVender.addEventListener("click", confirmarVenta);
 
 
+
 async function confirmarVenta() {
 
     if (procesandoVenta) {
@@ -1422,234 +1423,92 @@ async function confirmarVenta() {
     }
 
     if (!auth.currentUser || !esAdministrador) {
-
         mensajeVenta.textContent =
             "No tienes permisos para confirmar ventas.";
-
         return;
-
-    }
-
-    const codigos = Object.keys(carrito);
-
-    if (codigos.length === 0) {
-
-        mensajeVenta.textContent =
-            "Agrega al menos un producto.";
-
-        return;
-
     }
 
     procesandoVenta = true;
-
     btnVender.disabled = true;
-
-    mensajeVenta.textContent =
-        "Verificando existencias y registrando venta...";
 
     try {
 
-        // Consultar nuevamente el inventario directamente en Firebase.
+        mensajeVenta.textContent =
+            "Preparando solicitud de venta...";
 
-        const resultadoInventario = await get(
-            ref(database, "inventario")
-        );
-
-        if (!resultadoInventario.exists()) {
-            throw new Error("No hay productos registrados.");
-        }
-
-        const inventarioFresco = resultadoInventario.val();
-
-        const productosVenta = [];
-
-        let total = 0;
-
-        const actualizaciones = {};
-
-        // Revisar cada producto del carrito.
-
-        for (const codigo of codigos) {
-
-            const producto = inventarioFresco[codigo];
-
-            if (!producto) {
-
-                throw new Error(
-                    "El producto con código " + codigo +
-                    " ya no existe en el inventario."
-                );
-
-            }
-
-            const cantidad = Number(carrito[codigo].cantidad);
-
-            const stock = Number(producto.cantidad);
-
-            const precio = Number(producto.precioVenta);
-
-            if (
-                !Number.isInteger(cantidad) ||
-                cantidad < 1
-            ) {
-
-                throw new Error(
-                    "Hay una cantidad inválida en el carrito."
-                );
-
-            }
-
-            if (
-                !Number.isInteger(stock) ||
-                stock < cantidad
-            ) {
-
-                throw new Error(
-                    "Existencias insuficientes para: " +
-                    producto.nombre +
-                    ". Disponibles: " + (stock || 0)
-                );
-
-            }
-
-            if (
-                !Number.isFinite(precio) ||
-                precio <= 0
-            ) {
-
-                throw new Error(
-                    "El precio de " +
-                    producto.nombre +
-                    " no es válido."
-                );
-
-            }
-
-            const subtotal = precio * cantidad;
-
-            total += subtotal;
-
-            productosVenta.push({
-
-                codigoBarras: codigo,
-
-                nombre: String(producto.nombre || "Producto"),
-
-                cantidad: cantidad,
-
-                precioUnitario: precio,
-
-                subtotal: subtotal
-
-            });
-
-            // Preparar el descuento del inventario.
-
-            actualizaciones[
-                "inventario/" + codigo + "/cantidad"
-            ] = stock - cantidad;
-
-        }
-
-        if (
-            !Number.isFinite(total) ||
-            total <= 0
-        ) {
-
-            throw new Error("El total de la venta no es válido.");
-
-        }
-
-        // Crear un identificador único para la venta.
-
-        const referenciaVenta = push(ref(database, "ventas"));
-
-        const idVenta = referenciaVenta.key;
-
-        if (!idVenta) {
-            throw new Error("No se pudo generar el número de venta.");
-        }
-
-        const fechaHora = Date.now();
-
-        const dia = obtenerDiaBogota(fechaHora);
-
-        const venta = {
-
-            fechaHora: fechaHora,
-
-            dia: dia,
-
-            vendedor: {
-                uid: auth.currentUser.uid,
-                correo: auth.currentUser.email || "Sin correo"
-            },
-
-            productos: productosVenta,
-
-            total: total
-
-        };
-
-        // Añadir el registro de venta a la misma actualización
-        // que descuenta las existencias.
-
-        actualizaciones["ventas/" + idVenta] = venta;
-
-        // Firebase aplica todas las rutas juntas o ninguna.
-
-        await update(
-            ref(database),
-            actualizaciones
-        );
-
-        // Limpiar el carrito después de guardar correctamente.
-
-        Object.keys(carrito).forEach(codigo => {
-            delete carrito[codigo];
-        });
-
-        renderizarCarrito();
-
-        buscarProductosVenta();
+        // Recuperar la solicitud anterior o crear una nueva.
+        const solicitud = prepararSolicitudVenta();
 
         mensajeVenta.textContent =
-            "¡Venta registrada correctamente! Total: " +
-            dinero(total);
+            "Enviando solicitud al servidor...";
 
-        // Actualizar el historial si está abierto.
+        // Enviar al backend.
+        const resultado =
+            await enviarSolicitudVentaServidor(solicitud);
 
-        if (!contenidoHistorial.hidden) {
-            await cargarHistorialVentas();
+        // Venta confirmada por el servidor.
+        if (resultado.estado === "correcto") {
+
+            finalizarVentaConfirmada(solicitud, resultado);
+
+            // Actualizar historial sin confundir un error
+            // de lectura con un error de registro de venta.
+            if (!contenidoHistorial.hidden) {
+                try {
+                    await cargarHistorialVentas();
+                } catch (errorHistorial) {
+                    console.error(
+                        "Venta confirmada, pero no se pudo actualizar el historial:",
+                        errorHistorial
+                    );
+
+                    mensajeVenta.textContent =
+                        "Venta registrada correctamente. " +
+                        "No se pudo actualizar el historial.";
+                }
+            }
+
+            return;
         }
+
+        // Rechazo explícito del servidor.
+        if (resultado.estado === "error") {
+
+            const solicitudEliminada =
+                eliminarSolicitudVentaPendiente();
+
+            mensajeVenta.textContent =
+                (typeof resultado.mensaje === "string"
+                    ? resultado.mensaje
+                    : "El servidor rechazó la solicitud.") +
+                (solicitudEliminada
+                    ? ""
+                    : " No se pudo limpiar la solicitud local.");
+
+            return;
+        }
+
+        // Resultado incierto: conservar la solicitud.
+        mensajeVenta.textContent =
+            "No se pudo comprobar si la venta fue registrada. " +
+            "La solicitud se conserva. No cambies el carrito " +
+            "ni crees otra venta. Reintenta con la misma solicitud.";
 
     } catch (error) {
 
         console.error("Error confirmando venta:", error);
 
-        if (error.code === "PERMISSION_DENIED") {
-
-            mensajeVenta.textContent =
-                "Firebase rechazó la venta. Comprueba los permisos.";
-
-        } else {
-
-            mensajeVenta.textContent =
-                error.message || "No se pudo registrar la venta.";
-
-        }
+        mensajeVenta.textContent =
+            error.message ||
+            "No se pudo procesar la solicitud de venta.";
 
     } finally {
 
         procesandoVenta = false;
-
         renderizarCarrito();
 
     }
-
 }
-
 
 // ==========================================
 // MOSTRAR Y OCULTAR HISTORIAL

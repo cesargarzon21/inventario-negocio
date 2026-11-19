@@ -1,4 +1,3 @@
-
 import { auth, database } from "./firebase-config.js";
 
 import {
@@ -1084,7 +1083,7 @@ function renderizarCarrito() {
 
     btnVender.disabled =
     !esAdministrador ||
-    codigos.length === 0 ||
+    (codigos.length === 0 && solicitudVentaPendiente === null) ||
     procesandoVenta;
 
 }
@@ -2737,8 +2736,6 @@ function restaurarSolicitudVentaPendienteAlIniciarSesion() {
   }
 
 }
-
-
 
 
 console.log("Sistema de inventario y módulo de ventas iniciado correctamente");

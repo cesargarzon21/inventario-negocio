@@ -1953,7 +1953,7 @@ onAuthStateChanged(auth, async (usuario) => {
         esAdministrador = await comprobarAdministrador();
         
         restaurarSolicitudVentaPendienteAlIniciarSesion();
-        
+        comprobarSolicitudLocal();
 
         btnAdministrarUsuarios.hidden = !esAdministrador;
 

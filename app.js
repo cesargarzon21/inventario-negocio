@@ -1980,11 +1980,7 @@ onAuthStateChanged(auth, async (usuario) => {
         seccionRegistro.hidden = true;
 
     }
-    alert(
-  eliminarSolicitudVentaPendiente()
-    ? "Solicitud de prueba eliminada correctamente."
-    : "No se pudo eliminar la solicitud de prueba."
-);
+    
 
 });
 

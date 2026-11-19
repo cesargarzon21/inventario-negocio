@@ -2495,4 +2495,36 @@ function probarAlmacenamientoSolicitudVenta() {
 
 probarAlmacenamientoSolicitudVenta();
 
+function prepararPruebaPersistencia() {
+  try {
+    const existente = cargarSolicitudVentaPendiente();
+
+    if (existente !== null) {
+      alert("Ya existe una solicitud pendiente. No iniciaremos otra prueba.");
+      return;
+    }
+
+    const solicitud = crearSolicitudVentaPendiente([
+      {
+        codigoBarras: "7701234567890",
+        cantidad: 3
+      }
+    ]);
+
+    if (!solicitud) {
+      throw new Error("No se pudo crear la solicitud de prueba.");
+    }
+
+    alert(
+      "Solicitud de prueba guardada.\n\n" +
+      "Identificador: " + solicitud.requestId +
+      "\nCantidad: 3\n\n" +
+      "Ahora puedes recargar la aplicación."
+    );
+
+  } catch (error) {
+    alert("Error: " + error.message);
+  }
+}
+
 console.log("Sistema de inventario y módulo de ventas iniciado correctamente");

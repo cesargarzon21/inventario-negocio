@@ -1951,7 +1951,7 @@ onAuthStateChanged(auth, async (usuario) => {
         seccionRegistro.hidden = true;
 
         esAdministrador = await comprobarAdministrador();
-        
+        restaurarSolicitudVentaPendienteAlIniciarSesion();
         
 
         btnAdministrarUsuarios.hidden = !esAdministrador;
